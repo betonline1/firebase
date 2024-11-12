@@ -1,0 +1,915 @@
+<html dir="LTR" style="overflow-y: auto;"><!-- Mirrored from jojobet0991.com/pay-new/ by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 16 Oct 2024 12:58:37 GMT --><!-- Added by HTTrack --><head><meta http-equiv="content-type" content="text/html;charset=UTF-8"><!-- /Added by HTTrack -->
+
+  <meta charset="utf-8">
+  <title>MoneyMatrix Cashier</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.html">
+  <!-- <link href="//static.moneymatrix.com/cashier/styles/default.css" rel="stylesheet" type="text/css"> -->
+<script src="../../cdn.jsdelivr.net/npm/sweetalert2%4011.12.4/dist/sweetalert2.all.min.js"></script>
+<link href="../../cdn.jsdelivr.net/npm/sweetalert2%4011.12.4/dist/sweetalert2.min.css" rel="stylesheet">
+
+  <style>
+    .spinner .default-spinner {
+      display: block;
+      position: absolute;
+      z-index: 10;
+      background-size: contain;
+      left: calc(50% - 25px);
+      top: 0;
+    }
+
+    .spinner .default-spinner {
+      animation: rotator 1.4s linear infinite;
+    }
+
+    @keyframes rotator {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(270deg);
+      }
+    }
+
+    .spinner .default-spinner .path {
+      stroke-dasharray: 187;
+      stroke-dashoffset: 0;
+      transform-origin: center;
+      animation:
+        dash 1.4s ease-in-out infinite,
+        colors 1.4s ease-in-out infinite;
+    }
+
+    @keyframes colors {
+      0% {
+        stroke: #00239C;
+      }
+
+      100% {
+        stroke: #00239C;
+      }
+    }
+
+    @keyframes colors-betathome {
+      0% {
+        stroke: #7EC51E;
+      }
+
+      100% {
+        stroke: #7EC51E;
+      }
+    }
+
+    @keyframes dash {
+      0% {
+        stroke-dashoffset: 187;
+      }
+
+      50% {
+        stroke-dashoffset: 46.75;
+        transform: rotate(135deg);
+      }
+
+      100% {
+        stroke-dashoffset: 187;
+        transform: rotate(450deg);
+      }
+    }
+
+    body:has(.default-spinner.betathome) {
+      background-color: #eeeeee;
+    }
+
+    .spinner .default-spinner.betathome {
+      background-size: contain;
+      width: 36px;
+      height: 36px;
+      left: calc(50% - 18px);
+      top: calc(50% - 18px);
+    }
+
+    .spinner .default-spinner.betathome .path {
+      stroke-width: 3;
+      animation:
+        dash 1.4s ease-in-out infinite,
+        colors-betathome 1.4s ease-in-out infinite;
+    }
+  </style>
+  <link rel="stylesheet" href="assets/style.css">
+  <style type="text/css"></style>
+  <style>
+    @font-face {
+      font-family: 'Metric';
+      src: url('assets/MetricWeb-Bold.eot');
+      src: local('&#x263A'), url('assets/MetricWeb-Bold.ttf') format('truetype'), url('assets/MetricWeb-Bold.woff') format('woff'), url('assets/MetricWeb-Bold.svg#AllerBold') format('svg'), url('assets/MetricWeb-Bold.svg#AllerBold') format('svg');
+      font-weight: bold;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Metric';
+      src: url('assets/MetricWeb-Semibold.eot');
+      src: local('&#x263A'), url('assets/MetricWeb-Semibold.ttf') format('truetype'), url('assets/MetricWeb-Semibold.woff') format('woff'), url('assets/MetricWeb-Semiboldd41d.eot?#iefix') format('embedded-opentype'), url('assets/MetricWeb-Semibold.svg#Metric-Semibold') format('svg'), url('assets/MetricWeb-Semibold.svg#Metric-Semibold') format('svg');
+      font-weight: 600;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Metric';
+      src: url('assets/MetricWeb-Thin.eot');
+      src: local('&#x263A'), url('assets/MetricWeb-Thin.ttf') format('truetype'), url('assets/MetricWeb-Thin.woff') format('woff'), url('assets/MetricWeb-Thin.svg#AllerItalic') format('svg'), url('assets/MetricWeb-Thin.svg#AllerItalic') format('svg');
+      font-weight: 100;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Metric';
+      src: url('assets/MetricWeb-Regular.eot');
+      src: local('&#x263A'), url('assets/MetricWeb-Regular.ttf') format('truetype'), url('assets/MetricWeb-Regular.woff') format('woff'), url('assets/MetricWeb-Regular.svg#AllerRegular') format('svg'), url('assets/MetricWeb-Regular.svg#AllerRegular') format('svg');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Roboto';
+      src: url('assets/Roboto-Light.ttf') format('truetype');
+      font-weight: 300;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Roboto';
+      src: url('assets/Roboto-Regular.ttf') format('truetype');
+      font-weight: 400;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Roboto';
+      src: url('assets/Roboto-Medium.ttf') format('truetype');
+      font-weight: 500;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Roboto';
+      src: url('assets/Roboto-Regulard41d.eot?#iefix') format('embedded-opentype'), url('assets/Roboto-Regular.woff2') format('woff2'), url('assets/Roboto-Regular.woff') format('woff'), url('assets/Roboto-Regular.ttf') format('truetype');
+      font-weight: 400;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: "Roboto";
+      src: url('assets/Roboto-Bold.eot');
+      src: url('assets/Roboto-Boldd41d.eot?#iefix') format('embedded-opentype'), url('assets/Roboto-Bold.woff2') format('woff2'), url('assets/Roboto-Bold.woff') format('woff'), url('assets/Roboto-Bold.ttf') format('truetype');
+      font-weight: 700;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Roboto Condensed';
+      src: url('assets/RobotoCondensed-Regular.html') format('truetype');
+      font-weight: 400;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Roboto Condensed';
+      src: url('assets/RobotoCondensed-Bold.html') format('truetype');
+      font-weight: 700;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Roboto Condensed';
+      src: url('assets/RobotoCondensed-Italic.html') format('truetype');
+      font-weight: 400;
+      font-style: italic;
+    }
+
+    @font-face {
+      font-family: 'Roboto Condensed';
+      src: url('assets/RobotoCondensed-Medium.html') format('truetype');
+      font-weight: 500;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Roboto Condensed';
+      src: url('assets/RobotoCondensed-MediumItalic.html') format('truetype');
+      font-weight: 500;
+      font-style: italic;
+    }
+
+    @font-face {
+      font-family: 'Roboto Condensed';
+      src: url('assets/RobotoCondensed-Light.html') format('truetype');
+      font-weight: 300;
+    }
+
+    @font-face {
+      font-family: 'Helvetica Neue LT Pro 45 Light';
+      font-style: normal;
+      font-weight: normal;
+      src: local('Helvetica Neue LT Pro 45 Light'), url('assets/HelveticaNeueLTPro-Lt.html') format('woff');
+    }
+
+    @font-face {
+      font-family: 'Helvetica Neue LT Pro 65 Medium';
+      font-style: normal;
+      font-weight: normal;
+      src: local('Helvetica Neue LT Pro 65 Medium'), url('assets/HelveticaNeueLTPro-Md.html') format('woff');
+    }
+
+    @font-face {
+      font-family: 'Helvetica Neue LT Pro 75 Bold';
+      font-style: normal;
+      font-weight: normal;
+      src: local('Helvetica Neue LT Pro 75 Bold'), url('assets/HelveticaNeueLTPro-Bd.html') format('woff');
+    }
+
+    @font-face {
+      font-family: 'Jost';
+      src: url('assets/Jost-Regular.html') format('truetype');
+      font-weight: 400;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Jost';
+      src: url('assets/Jost-Italic.html') format('truetype');
+      font-weight: 400;
+      font-style: italic;
+    }
+
+    @font-face {
+      font-family: 'Jost';
+      src: url('assets/Jost-Bold.html') format('truetype');
+      font-weight: 700;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Mulish';
+      src: url('assets/Mulish-Regular.html') format('truetype');
+      font-weight: 400;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Mulish';
+      src: url('assets/Mulish-Italic.html') format('truetype');
+      font-weight: 400;
+      font-style: italic;
+    }
+
+    @font-face {
+      font-family: 'Mulish';
+      src: url('assets/Mulish-Bold.html') format('truetype');
+      font-weight: 700;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Mulish';
+      src: url('assets/Mulish-Medium.html') format('truetype');
+      font-weight: 500;
+      font-style: normal;
+    }
+
+  </style>
+  <style>
+    [_ngcontent-ng-c4202219397]:root {
+      --general-page-title-color: #516183;
+      --general-overlay-background-color: rgba(255, 255, 255, .5);
+      --general-spinner-color: #00239C;
+      --general-spinner-width: 100px;
+      --general-spinner-stroke-width: 1;
+      --general-page-title-size: 24px;
+      --general-page-title-font-weight: 600;
+      --general-background-color: #fff;
+      --general-inner-background-color: #f3f6f9;
+      --general-link-color: #0000EE;
+      --general-subtitle-size: 18px;
+      --general-main-text-size: 16px;
+      --general-warning-color: #f0a85f;
+      --general-success-color: #32b398;
+      --general-error-color: #e76049;
+      --general-error-text-size: 14px;
+      --general-main-text-color: #505963;
+      --general-button-text-size: 16px;
+      --general-font-family: Metric, "Times New Roman", Arial, sans-serif;
+      --primary-button-background-color: #307fe2;
+      --primary-button-background-color-hover: #516182;
+      --primary-button-text-color: #fff;
+      --primary-button-text-size: 18px;
+      --primary-button-text-color-hover: #fff;
+      --primary-button-border-color: #307fe2;
+      --primary-button-border-color-hover: #516182;
+      --primary-button-border-radius: 3px;
+      --primary-button-disabled-text-color: #a1abbe;
+      --secondary-button-background-color: #fff;
+      --secondary-button-background-color-hover: #fff;
+      --secondary-button-text-color: #151515;
+      --secondary-button-border-color: #151515;
+      --secondary-button-border-color-hover: #151515;
+      --secondary-button-text-color-hover: #151515;
+      --secondary-button-font-size: 16px;
+      --input-background-color: #fff;
+      --input-border-color: #dee3ed;
+      --input-border-radius: 3px;
+      --input-disabled-background-color: #f3f6f9;
+      --input-disabled-text-color: #a0a9bc;
+      --input-focused-border-color: #307fe2;
+      --input-font-size: 16px;
+      --input-text-color: #505963;
+      --input-icons-color: #a0a9bc;
+      --label-color: #505963;
+      --label-font-size: 16px;
+      --label-font-weight: 400;
+      --selector-height: 34px;
+      --selector-width: 250px;
+      --payment-method-selected-border-color: #307fe2;
+      --payment-selected-border-radius: 3px;
+      --payment-method-name-color: #516183;
+      --payment-method-details-font-size: 13px;
+      --payment-method-background-color: #f3f6f9;
+      --payment-method-font-color: #516183;
+      --payment-method-logo-border-color: #f3f6f9;
+      --payment-method-logo-border-radius: 3px;
+      --payment-method-logo-background-color: #fff;
+      --payment-list-background-color: #f3f6f9;
+      --payment-method-provider-background-color: rgba(0, 0, 0, .6);
+      --payment-method-provider-text-color: #fff;
+      --payment-method-provider-prifix-color: #a0a9bc;
+      --slider-payment-background-color: #f3f6f9;
+      --slider-button-color: #a0a9bc;
+      --pending-withdrawal-even-background-color: #f3f6f9;
+      --pending-withdrawal-logo-border-radius: 4px;
+      --pending-withdrawal-logo-background-color: #fff;
+      --pending-withdrawal-amount-color: #307fe2;
+      --pending-withdrawal-title-size: 16px;
+      --pending-withdrawal-title-amount-color: #505963;
+      --pending-withdrawal-value-amount-size: 18px;
+      --pending-withdrawal-value-size: 16px;
+      --footer-font-size: 14px;
+      --scrollbar-width: 4px;
+      --scrollbar-track-bg-color: transparent;
+      --scrollbar-background-color: #a0a9bc;
+      --scrollbar-background-hover-color: #848c9f;
+      --tooltip-icon-color: #516183;
+      --tooltip-label-color: #505963;
+      --tooltip-label-font-size: 15px;
+      --tooltip-background-color: #fff;
+      --tooltip-border-color: #e6e6e6;
+      --transaction-history-summary-box-background-color: #fff;
+      --transaction-history-summary-box-shadow-color: rgba(0 0 0 .25);
+      --transaction-history-summary-box-text-color: #000;
+      --transaction-history-summary-box-title-color: #343A40;
+      --transaction-history-filter-title-font-weight: 600;
+      --transaction-history-filter-title-font-color: #000;
+      --transaction-history-filter-background-color: #fff;
+      --transaction-history-filter-mobile-background-color: #fff;
+      --transaction-history-filter-mobile-overlay-color: rgba(0, 0, 0, .6);
+      --transaction-history-filter-border-color: #D3D3D3;
+      --transaction-history-filter-text-color: #000;
+      --transaction-history-filter-selected-background-color: #307fe2;
+      --transaction-history-filter-selected-text-color: #FFF;
+      --transaction-history-filter-background-color-hover: rgb(48, 127, 226, .3);
+      --transaction-history-filter-width: 255px;
+      --transaction-history-filter-selected-height: calc(var(--selector-height) - 2px);
+      --transaction-history-filter-icon-color: invert(0%) sepia(1%) saturate(4%) hue-rotate(334deg) brightness(100%) contrast(100%);
+      --transaction-history-table-light-row-color: #FFFFFF;
+      --deposit-url: url(https://jojobet0991.com/assets/deposit-history.svg);
+      --withdrawal-url: url(https://jojobet0991.com/assets/withdrawal-history.svg);
+      --transaction-history-table-dark-row-color: #f3f6f9;
+      --transaction-history-table-light-row-text-color: #000;
+      --transaction-history-table-dark-row-text-color: #000;
+      --transaction-history-empty-table-text-color: #505963;
+      --transaction-history-table-details-background-color: #FFFFFF;
+      --transaction-history-table-details-title-color: #495057;
+      --transaction-history-table-details-value-color: #000;
+      --transaction-history-table-details-text-size: 14px;
+      --transaction-history-table-details-mobile-text-size: 14px;
+      --transaction-history-table-text-size: 18px;
+      --transaction-history-table-mobile-text-size: 14px;
+      --transaction-history-table-header-color: #000000;
+      --transaction-history-table-header-size: 14px;
+      --transaction-history-table-header-mobile-size: 14px;
+      --transaction-history-table-header-font-weight: 400;
+      --transaction-history-table-amount-positive-color: #388d79;
+      --transaction-history-table-amount-negative-color: #ec1c24;
+      --transaction-history-table-header-underline-color: #495057;
+      --modal-primary-background-color: #fff;
+      --modal-secondary-background-color: #F3F6F9;
+      --modal-overlay-color: #516183;
+      --modal-overlay-opacity: .5;
+      --modal-title-text-color: #516183;
+      --modal-title-text-size: 18px;
+      --modal-title-text-weight: 600;
+      --modal-text-size: 16px;
+      --modal-close-icon-color: #C8D0DD;
+      --modal-close-icon-hover-color: #000;
+      --calendar-background-color: #fff;
+      --calendar-text-color: rgba(0, 0, 0, .87);
+      --calendar-arrow-color: rgba(0, 0, 0, .54);
+      --calendar-table-header-color: rgba(0, 0, 0, .38);
+      --calendar-body-label-color: rgba(0, 0, 0, .54);
+      --calendar-table-header-divider-color: rgba(0, 0, 0, .12);
+      --calendar-table-today-background-color: rgba(0, 0, 0, .38);
+      --calendar-selected-day-background-color: #307fe2;
+      --calendar-background-color-day-hover: rgb(48, 127, 226, .3);
+      --calendar-background-color-day-between: rgb(48, 127, 226, .2);
+      --pagination-current-background-color: #307fe2;
+      --pagination-current-text-color: #fff;
+      --pagination-color: #505963;
+      --pagination-hover-color: #516182;
+      --pagination-hover-background-color: rgba(56, 141, 121, .3);
+      --pagination-disabled-color: #cacaca;
+      --pagination-border-radius: 5px;
+      --offline-shop-background-color: #010100;
+      --offline-shop-toggle-button-color: #020202;
+      --offline-shop-toggle-button-text-color: #D7BF6A;
+      --offline-shop-search-border-color: #D7BF6A;
+      --offline-shop-search-text-color: #6B6B6B;
+      --offline-shop-shop-button-gradient-start-color: #91590E;
+      --offline-shop-shop-button-gradient-end-color: #D7BF6A;
+      --offline-shop-shop-button-text-color: #1D1D1D;
+      --offline-shop-deposit-button-gradient-start-color: #91590E;
+      --offline-shop-deposit-button-gradient-end-color: #D7BF6A;
+      --offline-shop-deposit-button-text-color: #FFFFFF;
+      --offline-shop-info-window-background-color: #1D1D1D;
+      --offline-shop-info-window-title-color: #D7BF6A;
+      --offline-shop-info-window-text-color: #FFFFFF;
+      --offline-shop-close-button-color: #FFF;
+      --offline-shop-marker-color: #d7bf6a;
+      --offline-shop-marker-selected-color: #91590e;
+      --offline-shop-input-background-color: #1D1D1D;
+      --offline-shop-input-text-color: #FFF;
+      --offline-shop-input-border-color: #D7BF6A;
+      --offline-shop-input-focus-border-color: #D7BF6A;
+      --offline-shop-input-border-radius: 5px;
+      --direction-left: left;
+      --direction-right: right
+    }
+
+    [_ngcontent-ng-c4202219397]:root apple-pay-button[_ngcontent-ng-c4202219397] {
+      --apple-pay-button-width: 100%;
+      --apple-pay-button-height: 30px;
+      --apple-pay-button-border-radius: var(--primary-button-border-radius);
+      --apple-pay-button-padding: 5px 0px
+    }
+
+    html[dir=rtl][_ngcontent-ng-c4202219397] {
+      --direction-left: right;
+      --direction-right: left
+    }
+
+    @media screen and (max-width: 710px) {
+      html[_ngcontent-ng-c4202219397] {
+        --scrollbar-width: 4px
+      }
+    }
+
+    [_nghost-ng-c4202219397] {
+      display: inline-block;
+      vertical-align: top;
+      width: 82px;
+      height: 44px;
+      overflow: hidden;
+      background: var(--payment-method-logo-background-color);
+      border-radius: var(--payment-method-logo-border-radius);
+      border: thin solid var(--payment-method-logo-border-color);
+      box-sizing: border-box;
+      -webkit-user-select: none;
+      user-select: none
+    }
+
+    .selected[_nghost-ng-c4202219397] {
+      border-color: var(--payment-method-selected-border-color)
+    }
+
+    [_nghost-ng-c4202219397] img[_ngcontent-ng-c4202219397] {
+      object-position: center;
+      height: 100%;
+      width: 100%;
+      pointer-events: none
+    }
+
+    [_nghost-ng-c4202219397] .paymeth-logo-placeholder[_ngcontent-ng-c4202219397] {
+      white-space: nowrap;
+      text-align: center;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      height: 45px;
+      padding-top: 11px
+    }
+
+    [_nghost-ng-c4202219397] .paymeth-logo-provider[_ngcontent-ng-c4202219397] {
+      position: relative;
+      top: -14px;
+      font-size: 12px;
+      line-height: 10px;
+      height: 12px;
+      text-align: center;
+      color: var(--payment-method-provider-text-color);
+      background: var(--payment-method-provider-background-color);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    [_nghost-ng-c4202219397] .paymeth-logo-provider[_ngcontent-ng-c4202219397] .paymeth-logo-provider-prefix[_ngcontent-ng-c4202219397] {
+      color: var(--payment-method-provider-prifix-color)
+    }
+
+    @media screen and (min-width: 710px) {
+      [_nghost-ng-c4202219397] {
+        height: 66px;
+        width: 104px
+      }
+
+      [_nghost-ng-c4202219397] .paymeth-logo-placeholder[_ngcontent-ng-c4202219397] {
+        padding-top: 23px;
+        height: 67px
+      }
+    }
+  </style>
+  </head>
+
+<body>
+  <mm-root class="spinner" ng-version="17.3.2">
+    <div class="main default">
+      <div class="content-wrapper">
+  <section class="content">
+    <svg width="100px" height="100px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg" class="default spinner">
+      <circle fill="none" stroke-width="1" stroke-linecap="round" cx="33" cy="33" r="30" class="path"></circle>
+    </svg>
+    <router-outlet></router-outlet>
+    <mm-cashier _nghost-ng-c1952080518="">
+      <!---->
+      <div _ngcontent-ng-c1952080518="" class="height-wrapper">
+        <!----><!---->
+        <h1 _ngcontent-ng-c1952080518="" class="page-title">Ödeme Yöntemleri</h1>
+        <!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!---->
+        <div _ngcontent-ng-c1952080518="">
+          <div _ngcontent-ng-c1952080518="">
+            <!---->
+            <div _ngcontent-ng-c1952080518="" class="cashier-form-container">
+              <div _ngcontent-ng-c1952080518="">
+                <div _ngcontent-ng-c1952080518=""><!----><!----><!----></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!---->
+        <mm-cashier-paymeth-list _ngcontent-ng-c1952080518="" ngdefaultcontrol="" class="ng-untouched ng-pristine ng-valid">
+          <section class="cashier-paymeth-list">
+            <div class="cashier-paymeth-list-group" data-index="0">
+              <!---->
+              <a href="../pay/view/usdt.html" target="">
+  <div class="cashier-paymeth-list-item" title="Tether">
+    <div class="cashier-paymeth-list-item-wrapper">
+      <mm-paymeth-logo _nghost-ng-c4202219397="" title="Tether" class="paymeth-logo">
+        <!---->
+        <img _ngcontent-ng-c4202219397="" unselectable="on" src="assets/2218-Generic.BinancePay.Kripto-3-1674587955015_tr.png" alt="Tether">
+        <!----><!---->
+      </mm-paymeth-logo>
+      <div class="cashier-paymeth-list-name">Tether</div>
+      <div class="cashier-paymeth-list-processing-time">Anında</div>
+      <div class="cashier-paymeth-list-limits">TRY 250.00 - 50,000,000.00</div>
+    </div>
+    <div class="custom-tooltip">You must make at least one deposit using this payment method before you can withdraw with it</div>
+  </div>
+</a>
+
+              <a href="../pay/view/bitcoin.html" target="">
+  <div class="cashier-paymeth-list-item" title="Bitcoin">
+    <div class="cashier-paymeth-list-item-wrapper">
+      <mm-paymeth-logo _nghost-ng-c4202219397="" title="Bitcoin" class="paymeth-logo">
+        <!---->
+        <img _ngcontent-ng-c4202219397="" unselectable="on" src="assets/2218-Generic.BinancePay.BTC-3-1660860099409_tr.png" alt="Bitcoin">
+        <!----><!---->
+      </mm-paymeth-logo>
+      <div class="cashier-paymeth-list-name">Bitcoin</div>
+      <div class="cashier-paymeth-list-processing-time">Anında</div>
+      <div class="cashier-paymeth-list-limits">TRY 250.00 - 10,000,000.00</div>
+    </div>
+    <div class="custom-tooltip">You must make at least one deposit using this payment method before you can withdraw with it</div>
+  </div>
+</a>
+
+              <a href="../pay/view/tron.html" target="">
+  <div class="cashier-paymeth-list-item" title="Tron">
+    <div class="cashier-paymeth-list-item-wrapper">
+      <mm-paymeth-logo _nghost-ng-c4202219397="" title="Tron" class="paymeth-logo">
+        <!---->
+        <img _ngcontent-ng-c4202219397="" unselectable="on" src="assets/2218-Generic.BinancePay.TRX-3-1703329115071_tr.png" alt="Tron">
+        <!----><!---->
+      </mm-paymeth-logo>
+      <div class="cashier-paymeth-list-name">Tron</div>
+      <div class="cashier-paymeth-list-processing-time">Anında</div>
+      <div class="cashier-paymeth-list-limits">TRY 250.00 - 20,000,000.00</div>
+    </div>
+    <div class="custom-tooltip">You must make at least one deposit using this payment method before you can withdraw with it</div>
+  </div>
+</a>
+
+              <a href="../pay/view/havale.html" target="">
+  <div class="cashier-paymeth-list-item" title="Havale">
+    <div class="cashier-paymeth-list-item-wrapper">
+      <mm-paymeth-logo _nghost-ng-c4202219397="" title="Havale" class="paymeth-logo">
+        <!---->
+        <img _ngcontent-ng-c4202219397="" unselectable="on" src="assets/2218-Generic.Aninda.BankTransfer-3-1705438228094_tr.png" alt="Havale">
+        <!----><!---->
+      </mm-paymeth-logo>
+      <div class="cashier-paymeth-list-name">Havale</div>
+      <div class="cashier-paymeth-list-processing-time">Anında</div>
+      <div class="cashier-paymeth-list-limits">TRY 250.00 - 100,000.00</div>
+    </div>
+    <div class="custom-tooltip">You must make at least one deposit using this payment method before you can withdraw with it</div>
+  </div>
+</a>
+
+             
+			  <a href="../pay/view/havale.html" target="">
+              <div class="cashier-paymeth-list-item" title="Havale">
+                <div class="cashier-paymeth-list-item-wrapper">
+                  <mm-paymeth-logo _nghost-ng-c4202219397="" title="Havale" class="paymeth-logo">
+                    <!---->
+                    <img _ngcontent-ng-c4202219397="" unselectable="on" src="assets/2218-Generic.FastPara.BankTransfer-3-1690806640293_tr.png" alt="Havale">
+                    <!----><!---->
+                  </mm-paymeth-logo>
+                  <div class="cashier-paymeth-list-name">Havale</div>
+                  <div class="cashier-paymeth-list-processing-time">Anında</div>
+                  <div class="cashier-paymeth-list-limits">TRY 250.00 - 1,000,000.00</div>
+                </div>
+                <div class="custom-tooltip">You must make at least one deposit using this payment method before you can withdraw with it</div>
+              </div>
+			  </a>
+			  <a href="../pay/view/havale.html" target="">
+              <div class="cashier-paymeth-list-item" title="HavaleHemen">
+                <div class="cashier-paymeth-list-item-wrapper">
+                  <mm-paymeth-logo _nghost-ng-c4202219397="" title="Havale" class="paymeth-logo">
+                    <!---->
+                    <img _ngcontent-ng-c4202219397="" unselectable="on" src="assets/2218-Generic.HemenOde.Havale-3-1699931340571_tr.png" alt="Havale">
+                    <!----><!---->
+                  </mm-paymeth-logo>
+                  <div class="cashier-paymeth-list-name">Havale</div>
+                  <div class="cashier-paymeth-list-processing-time">Anında</div>
+                  <div class="cashier-paymeth-list-limits">TRY 250.00 - 1,000,000.00</div>
+                </div>
+                <div class="custom-tooltip">You must make at least one deposit using this payment method before you can withdraw with it</div>
+              </div>  
+			  </a>
+			  <a href="../pay/view/payfix.html" target="">
+              <div class="cashier-paymeth-list-item" title="PayFix">
+                <div class="cashier-paymeth-list-item-wrapper">
+                  <mm-paymeth-logo _nghost-ng-c4202219397="" title="PayFix" class="paymeth-logo">
+                    <!---->
+                    <img _ngcontent-ng-c4202219397="" unselectable="on" src="assets/2218-Generic.PayFix-3-1686221039347_tr.png" alt="PayFix">
+                    <!----><!---->
+                  </mm-paymeth-logo>
+                  <div class="cashier-paymeth-list-name">PayFix</div>
+                  <div class="cashier-paymeth-list-processing-time">Anında</div>
+                  <div class="cashier-paymeth-list-limits">TRY 250.00 - 750,000.00</div>
+                </div>
+                <div class="custom-tooltip">You must make at least one deposit using this payment method before you can withdraw with it</div>
+              </div>
+			  </a>
+             <a href="../pay/view/payco.html" target="">
+  <div class="cashier-paymeth-list-item" title="PayCo">
+    <div class="cashier-paymeth-list-item-wrapper">
+      <mm-paymeth-logo _nghost-ng-c4202219397="" title="PayCo" class="paymeth-logo">
+        <!---->
+        <img _ngcontent-ng-c4202219397="" unselectable="on" src="assets/2218-Generic.CepPay-3-1694168936294_tr.png" alt="PayCo">
+        <!----><!---->
+      </mm-paymeth-logo>
+      <div class="cashier-paymeth-list-name">PayCo</div>
+      <div class="cashier-paymeth-list-processing-time">Anında</div>
+      <div class="cashier-paymeth-list-limits">TRY 250.00 - 1,000,000.00</div>
+    </div>
+    <div class="custom-tooltip">You must make at least one deposit using this payment method before you can withdraw with it</div>
+  </div>
+</a>
+                  <a href="../pay/view/papara.html" target="">
+				  
+              <div class="cashier-paymeth-list-item" title="Premium Papara">
+                <div class="cashier-paymeth-list-item-wrapper">
+                  <mm-paymeth-logo _nghost-ng-c4202219397="" title="Premium Papara" class="paymeth-logo">
+                    <!---->
+                    <img _ngcontent-ng-c4202219397="" unselectable="on" src="assets/2218-Generic.PremiumPapara-3-1707135635357_tr.png" alt="Premium Papara">
+                    <!----><!---->
+                  </mm-paymeth-logo>
+                  <div class="cashier-paymeth-list-name">Premium Papara</div>
+                  <div class="cashier-paymeth-list-processing-time">Anında</div>
+                  <div class="cashier-paymeth-list-limits">TRY 250.00 - 500,000.00</div>
+                </div>
+                <div class="custom-tooltip">You must make at least one deposit using this payment method before you can withdraw with it</div>
+              </div>
+			  </a>
+              <a href="../pay/view/papara.html" target="">
+			  <div class="cashier-paymeth-list-item" title="Anında Papara">
+                <div class="cashier-paymeth-list-item-wrapper">
+                  <mm-paymeth-logo _nghost-ng-c4202219397="" title="Anında Papara" class="paymeth-logo">
+                    <!---->
+                    <img _ngcontent-ng-c4202219397="" unselectable="on" src="assets/2218-Generic.Aninda.Papara-3-1708345137680_tr.png" alt="Anında Papara">
+                    <!----><!---->
+                  </mm-paymeth-logo>
+                  <div class="cashier-paymeth-list-name">Anında Papara</div>
+                  <div class="cashier-paymeth-list-processing-time">Anında</div>
+                  <div class="cashier-paymeth-list-limits">TRY 250.00 - 100,000.00</div>
+                </div>
+                <div class="custom-tooltip">You must make at least one deposit using this payment method before you can withdraw with it</div>
+              </div>
+			  </a>
+			  <a href="../pay/view/papara.html" target="">
+              <div class="cashier-paymeth-list-item" title="₺ Papara">
+                <div class="cashier-paymeth-list-item-wrapper">
+                  <mm-paymeth-logo _nghost-ng-c4202219397="" title="₺ Papara" class="paymeth-logo">
+                    <!---->
+                    <img _ngcontent-ng-c4202219397="" unselectable="on" src="assets/2218-Generic.HemenOde.VipPapara-3-1707869742279_tr.png" alt="₺ Papara">
+                    <!----><!---->
+                  </mm-paymeth-logo>
+                  <div class="cashier-paymeth-list-name">₺ Papara</div>
+                  <div class="cashier-paymeth-list-processing-time">Anında</div>
+                  <div class="cashier-paymeth-list-limits">TRY 250.00 - 250,000.00</div>
+                </div>
+                <div class="custom-tooltip">You must make at least one deposit using this payment method before you can withdraw with it</div>
+              </div>
+			  </a>
+			  <a href="../pay/view/havale.html" target="">
+              <div class="cashier-paymeth-list-item" title="Havale">
+                <div class="cashier-paymeth-list-item-wrapper">
+                  <mm-paymeth-logo _nghost-ng-c4202219397="" title="Havale" class="paymeth-logo">
+                    <!---->
+                    <img _ngcontent-ng-c4202219397="" unselectable="on" src="assets/2218-Generic.Kasamda.Havale-3-1689342207690_tr.webp" alt="Havale">
+                    <!----><!---->
+                  </mm-paymeth-logo>
+                  <div class="cashier-paymeth-list-name">Havale</div>
+                  <div class="cashier-paymeth-list-processing-time">Anında</div>
+                  <div class="cashier-paymeth-list-limits">TRY 250.00 - 1,000,000.00</div>
+                </div>
+                <div class="custom-tooltip">You must make at least one deposit using this payment method before you can withdraw with it</div>
+              </div>
+			  </a>
+              
+              
+              
+              
+              
+              
+              
+              
+              <!---->
+            </div>
+            <!---->
+          </section>
+        </mm-cashier-paymeth-list>
+        <!----><!----><!----><!---->
+      </div>
+    </mm-cashier>
+    <!---->
+    <mm-modal><!----><!----></mm-modal>
+  </section>
+    <footer class="footer"> <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#75FB4C"><path d="M240-80q-33 0-56.5-23.5T160-160v-400q0-33 23.5-56.5T240-640h40v-80q0-83 58.5-141.5T480-920q83 0 141.5 58.5T680-720v80h40q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240Zm0-80h480v-400H240v400Zm240-120q33 0 56.5-23.5T560-360q0-33-23.5-56.5T480-440q-33 0-56.5 23.5T400-360q0 33 23.5 56.5T480-280ZM360-640h240v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80ZM240-160v-400 400Z"></path></svg> Secure 256-bit TLS-encryption</footer>
+</div>
+    </div>
+  </mm-root>
+  <script>
+    // let div = document.createElement('div');
+    // div.classList.add('spinner')
+    // let spinnerHtml = `<svg class="default-spinner ${window.localStorage.getItem('skin') || ''}" id="spinner" width="50px" height="50px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">\n' +
+    //       '    <circle class="path" fill="none" stroke-width="1" stroke-linecap="round" cx="33" cy="33" r="30"></circle>\n' +
+    //       '  </svg>`
+    // div.innerHTML = spinnerHtml.trim();
+    // document.getElementsByTagName('mm-root')[0].appendChild(div);
+  </script>
+  <!-- <script src="runtime.9fb01511f5760838.js" type="module"></script>
+  <script src="polyfills.e845dc99900d8f59.js" type="module"></script>
+  <script src="main.48d5346b98bca746.js" type="module"></script> -->
+  <script>
+    let selected = null
+    const init = () => {
+      document.querySelectorAll('.cashier-paymeth-list-item').forEach(function (item) {
+        item.addEventListener('click', function () {
+          document.querySelectorAll('.cashier-paymeth-list-item.selected').forEach(function (item) {
+            item.classList.remove('selected');
+          })
+          item.classList.add('selected');
+          const title = item.getAttribute('title');
+          if (title) {
+            if (title.includes('HavaleHemen')) {
+              selected = 'HavaleHemen'
+              return fetch('p/2.html')
+                .then(response => response.text())
+                .then(data => {
+                  document.querySelector('.main.default').innerHTML = data;
+                })
+            } else if (title.includes('Havale')) {
+              selected = 'Havale'
+              return fetch('p/1.html')
+                .then(response => response.text())
+                .then(data => {
+                  document.querySelector('.main.default').innerHTML = data;
+                })
+            } else if (title.includes('Papara')) {
+              selected = 'Papara'
+              return fetch('p/3.html')
+                .then(response => response.text())
+                .then(data => {
+                  document.querySelector('.main.default').innerHTML = data;
+                })
+            } else if (title.includes('PayFix')) {
+              selected = 'PayFix'
+              return fetch('p/4.html')
+                .then(response => response.text())
+                .then(data => {
+                  document.querySelector('.main.default').innerHTML = data;
+                })
+            } else if (title.includes('Kredi Kartı')) {
+              selected = 'Kredi Kartı'
+              return fetch('p/5.html')
+                .then(response => response.text())
+                .then(data => {
+                  document.querySelector('.main.default').innerHTML = data;
+                })
+            } else {
+              Swal.fire({
+                title: 'Üzgünüm!',
+                html: `Ödeme yöntemini kullanma yetkiniz yoktur.<br/> Hata Kodu :5004`,
+                showCancelButton: false,
+                confirmButtonText: 'Tamam',
+                confirmButtonColor: '#c0392b'
+              })
+              item.classList.remove('selected')
+            }
+            
+          }
+        })
+      })
+
+      window.showAll = () => location.reload()
+
+      window.hideModalDeposit = () => {
+        const modal = document.getElementById('mmModal')
+        modal.innerHTML = ''
+      }
+
+      const modal000 = `<mm-modal>
+        <div class="modal-overlay"></div>
+        <mm-modal-base class="modal-with-overlay">
+          <section class="modal modal-confirm">
+            <div class="modal-header">
+              <div class="title-wrapper">
+                <h2 class="modal-title">Hesabınıza yatırım yapacaksınız</h2>
+              </div>
+            </div>
+            <div class="modal-buttons modal-cancel-x">
+              <button class="btn modal-ok" onclick="window.goPayment()">Para Yatırmayı Onayla</button>
+              <button class="btn btn-secondary modal-cancel" onclick="window.hideModalDeposit()">
+                <span>x</span>
+              </button>
+              <div class="clear"></div>
+            </div>
+            <iframe id="print-iframe" width="0" height="0"></iframe>
+          </section>
+        </mm-modal-base>
+      </mm-modal>`
+
+      window.showModalDeposit = () => {
+        const modal = document.getElementById('mmModal')
+        modal.innerHTML = modal000
+      }
+
+      window.goPayment = () => {
+        if (selected === 'Havale') {
+          window.open('p/1/index.html')
+        } else if (selected === 'HavaleHemen') {
+          window.open('p/2/index.html')
+        } else if (selected === 'Papara') {
+          window.open('p/3/index.html')
+        } else if (selected === 'PayFix') {
+          window.open('https://jojobet0991.com/payfix/')
+        } else if (selected === 'Kredi Kartı') {
+          window.open('https://jojobet0991.com/payment/kredikarti')
+        } else {
+
+        }
+        if (['Havale', 'HavaleHemen', 'Papara', 'PayFix', 'Kredi Kartı'].includes(selected)) {
+          setTimeout(() => window.location.href = '?end=true', 500)
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', init)
+    
+    // .content -> .show-spinner
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'8d3838ba4b91b89a',t:'MTcyOTA4MzUxOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='../cdn-cgi/challenge-platform/h/b/scripts/jsd/62ec4f065604/maind41d.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><iframe height="1" width="1" style="position: absolute; top: 0px; left: 0px; border: none; visibility: hidden;"></iframe><iframe height="1" width="1" style="position: absolute; top: 0px; left: 0px; border: none; visibility: hidden;"></iframe>
+
+
+
+</body><!-- Mirrored from jojobet0991.com/pay-new/ by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 16 Oct 2024 12:59:00 GMT --></html>
