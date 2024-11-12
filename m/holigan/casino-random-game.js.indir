@@ -1,0 +1,647 @@
+!function(t,e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e():"function"==typeof define&&define.amd?define(e):(t="undefined"!=typeof globalThis?globalThis:t||self).app=e()}(this,(function(){"use strict";function t(){}function e(t){return t()}function r(){return Object.create(null)}function n(t){t.forEach(e)}function o(t){return"function"==typeof t}function i(t,e){return t!=t?e==e:t!==e||t&&"object"==typeof t||"function"==typeof t}let a,s;function l(t,e){return a||(a=document.createElement("a")),a.href=e,t===a.href}function u(e,...r){if(null==e)return t;const n=e.subscribe(...r);return n.unsubscribe?()=>n.unsubscribe():n}function c(t,e){t.appendChild(e)}function h(t,e,r){t.insertBefore(e,r||null)}function f(t){t.parentNode.removeChild(t)}function p(t){return document.createElement(t)}function d(t){return document.createTextNode(t)}function m(){return d(" ")}function y(t,e,r,n){return t.addEventListener(e,r,n),()=>t.removeEventListener(e,r,n)}function b(t,e,r){null==r?t.removeAttribute(e):t.getAttribute(e)!==r&&t.setAttribute(e,r)}function g(t,e){e=""+e,t.wholeText!==e&&(t.data=e)}function v(t,e,r,n){null===r?t.style.removeProperty(e):t.style.setProperty(e,r,n?"important":"")}function E(t){const e={};for(const r of t)e[r.name]=r.value;return e}function _(t){s=t}const w=[],T=[],B=[],A=[],H=Promise.resolve();let S=!1;function P(t){B.push(t)}
+// flush() calls callbacks in this order:
+// 1. All beforeUpdate callbacks, in order: parents before children
+// 2. All bind:this callbacks, in reverse order: children before parents.
+// 3. All afterUpdate callbacks, in order: parents before children. EXCEPT
+//    for afterUpdates called during the initial onMount, which are called in
+//    reverse order: children before parents.
+// Since callbacks might update component values, which could trigger another
+// call to flush(), the following steps guard against this:
+// 1. During beforeUpdate, any updated components will be added to the
+//    dirty_components array and will cause a reentrant call to flush(). Because
+//    the flush index is kept outside the function, the reentrant call will pick
+//    up where the earlier call left off and go through all dirty components. The
+//    current_component value is saved and restored so that the reentrant call will
+//    not interfere with the "parent" flush() call.
+// 2. bind:this callbacks cannot trigger new flush() calls.
+// 3. During afterUpdate, any updated components will NOT have their afterUpdate
+//    callback called a second time; the seen_callbacks set, outside the flush()
+//    function, guarantees this behavior.
+const R=new Set;let L=0;// Do *not* move this inside the flush() function
+function O(){const t=s;do{
+// first, call beforeUpdate functions
+// and update components
+for(;L<w.length;){const t=w[L];L++,_(t),C(t.$$)}for(_(null),w.length=0,L=0;T.length;)T.pop()();
+// then, once components are updated, call
+// afterUpdate functions. This may cause
+// subsequent updates...
+for(let t=0;t<B.length;t+=1){const e=B[t];R.has(e)||(
+// ...so guard against infinite loops
+R.add(e),e())}B.length=0}while(w.length);for(;A.length;)A.pop()();S=!1,R.clear(),_(t)}function C(t){if(null!==t.fragment){t.update(),n(t.before_update);const e=t.dirty;t.dirty=[-1],t.fragment&&t.fragment.p(t.ctx,e),t.after_update.forEach(P)}}const I=new Set;function x(t,e){-1===t.$$.dirty[0]&&(w.push(t),S||(S=!0,H.then(O)),t.$$.dirty.fill(0)),t.$$.dirty[e/31|0]|=1<<e%31}function M(i,a,l,u,c,h,p,d=[-1]){const m=s;_(i);const y=i.$$={fragment:null,ctx:null,
+// state
+props:h,update:t,not_equal:c,bound:r(),
+// lifecycle
+on_mount:[],on_destroy:[],on_disconnect:[],before_update:[],after_update:[],context:new Map(a.context||(m?m.$$.context:[])),
+// everything else
+callbacks:r(),dirty:d,skip_bound:!1,root:a.target||m.$$.root};p&&p(y.root);let b=!1;if(y.ctx=l?l(i,a.props||{},((t,e,...r)=>{const n=r.length?r[0]:e;return y.ctx&&c(y.ctx[t],y.ctx[t]=n)&&(!y.skip_bound&&y.bound[t]&&y.bound[t](n),b&&x(i,t)),e})):[],y.update(),b=!0,n(y.before_update),
+// `false` as a special case of no DOM component
+y.fragment=!!u&&u(y.ctx),a.target){if(a.hydrate){const t=function(t){return Array.from(t.childNodes)}(a.target);
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+y.fragment&&y.fragment.l(t),t.forEach(f)}else
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+y.fragment&&y.fragment.c();a.intro&&((g=i.$$.fragment)&&g.i&&(I.delete(g),g.i(v))),function(t,r,i,a){const{fragment:s,on_mount:l,on_destroy:u,after_update:c}=t.$$;s&&s.m(r,i),a||
+// onMount happens before the initial afterUpdate
+P((()=>{const r=l.map(e).filter(o);u?u.push(...r):
+// Edge case - component was destroyed immediately,
+// most likely as a result of a binding initialising
+n(r),t.$$.on_mount=[]})),c.forEach(P)}(i,a.target,a.anchor,a.customElement),O()}var g,v;_(m)}let N;"function"==typeof HTMLElement&&(N=class extends HTMLElement{constructor(){super(),this.attachShadow({mode:"open"})}connectedCallback(){const{on_mount:t}=this.$$;this.$$.on_disconnect=t.map(e).filter(o);
+// @ts-ignore todo: improve typings
+for(const t in this.$$.slotted)
+// @ts-ignore todo: improve typings
+this.appendChild(this.$$.slotted[t])}attributeChangedCallback(t,e,r){this[t]=r}disconnectedCallback(){n(this.$$.on_disconnect)}$destroy(){!function(t,e){const r=t.$$;null!==r.fragment&&(n(r.on_destroy),r.fragment&&r.fragment.d(e),
+// TODO null out other refs, including component.$$ (but need to
+// preserve final state?)
+r.on_destroy=r.fragment=null,r.ctx=[])}(this,1),this.$destroy=t}$on(t,e){
+// TODO should this delegate to addEventListener?
+const r=this.$$.callbacks[t]||(this.$$.callbacks[t]=[]);return r.push(e),()=>{const t=r.indexOf(e);-1!==t&&r.splice(t,1)}}$set(t){var e;this.$$set&&(e=t,0!==Object.keys(e).length)&&(this.$$.skip_bound=!0,this.$$set(t),this.$$.skip_bound=!1)}});var G="undefined"!=typeof globalThis&&globalThis||"undefined"!=typeof self&&self||void 0!==G&&G,U="URLSearchParams"in G,D="Symbol"in G&&"iterator"in Symbol,F="FileReader"in G&&"Blob"in G&&function(){try{return new Blob,!0}catch(t){return!1}}(),k="FormData"in G,$="ArrayBuffer"in G;if($)var j=["[object Int8Array]","[object Uint8Array]","[object Uint8ClampedArray]","[object Int16Array]","[object Uint16Array]","[object Int32Array]","[object Uint32Array]","[object Float32Array]","[object Float64Array]"],V=ArrayBuffer.isView||function(t){return t&&j.indexOf(Object.prototype.toString.call(t))>-1};function W(t){if("string"!=typeof t&&(t=String(t)),/[^a-z0-9\-#$%&'*+.^_`|~!]/i.test(t)||""===t)throw new TypeError('Invalid character in header field name: "'+t+'"');return t.toLowerCase()}function X(t){return"string"!=typeof t&&(t=String(t)),t}
+// Build a destructive iterator for the value list
+function z(t){var e={next:function(){var e=t.shift();return{done:void 0===e,value:e}}};return D&&(e[Symbol.iterator]=function(){return e}),e}function K(t){this.map={},t instanceof K?t.forEach((function(t,e){this.append(e,t)}),this):Array.isArray(t)?t.forEach((function(t){this.append(t[0],t[1])}),this):t&&Object.getOwnPropertyNames(t).forEach((function(e){this.append(e,t[e])}),this)}function Y(t){if(t.bodyUsed)return Promise.reject(new TypeError("Already read"));t.bodyUsed=!0}function Z(t){return new Promise((function(e,r){t.onload=function(){e(t.result)},t.onerror=function(){r(t.error)}}))}function J(t){var e=new FileReader,r=Z(e);return e.readAsArrayBuffer(t),r}function q(t){if(t.slice)return t.slice(0);var e=new Uint8Array(t.byteLength);return e.set(new Uint8Array(t)),e.buffer}function Q(){return this.bodyUsed=!1,this._initBody=function(t){var e;
+/*
+          fetch-mock wraps the Response object in an ES6 Proxy to
+          provide useful test harness features such as flush. However, on
+          ES5 browsers without fetch or Proxy support pollyfills must be used;
+          the proxy-pollyfill is unable to proxy an attribute unless it exists
+          on the object before the Proxy is created. This change ensures
+          Response.bodyUsed exists on the instance, while maintaining the
+          semantic of setting Request.bodyUsed in the constructor before
+          _initBody is called.
+        */
+this.bodyUsed=this.bodyUsed,this._bodyInit=t,t?"string"==typeof t?this._bodyText=t:F&&Blob.prototype.isPrototypeOf(t)?this._bodyBlob=t:k&&FormData.prototype.isPrototypeOf(t)?this._bodyFormData=t:U&&URLSearchParams.prototype.isPrototypeOf(t)?this._bodyText=t.toString():$&&F&&((e=t)&&DataView.prototype.isPrototypeOf(e))?(this._bodyArrayBuffer=q(t.buffer),
+// IE 10-11 can't handle a DataView body.
+this._bodyInit=new Blob([this._bodyArrayBuffer])):$&&(ArrayBuffer.prototype.isPrototypeOf(t)||V(t))?this._bodyArrayBuffer=q(t):this._bodyText=t=Object.prototype.toString.call(t):this._bodyText="",this.headers.get("content-type")||("string"==typeof t?this.headers.set("content-type","text/plain;charset=UTF-8"):this._bodyBlob&&this._bodyBlob.type?this.headers.set("content-type",this._bodyBlob.type):U&&URLSearchParams.prototype.isPrototypeOf(t)&&this.headers.set("content-type","application/x-www-form-urlencoded;charset=UTF-8"))},F&&(this.blob=function(){var t=Y(this);if(t)return t;if(this._bodyBlob)return Promise.resolve(this._bodyBlob);if(this._bodyArrayBuffer)return Promise.resolve(new Blob([this._bodyArrayBuffer]));if(this._bodyFormData)throw new Error("could not read FormData body as blob");return Promise.resolve(new Blob([this._bodyText]))},this.arrayBuffer=function(){if(this._bodyArrayBuffer){var t=Y(this);return t||(ArrayBuffer.isView(this._bodyArrayBuffer)?Promise.resolve(this._bodyArrayBuffer.buffer.slice(this._bodyArrayBuffer.byteOffset,this._bodyArrayBuffer.byteOffset+this._bodyArrayBuffer.byteLength)):Promise.resolve(this._bodyArrayBuffer))}return this.blob().then(J)}),this.text=function(){var t,e,r,n=Y(this);if(n)return n;if(this._bodyBlob)return t=this._bodyBlob,e=new FileReader,r=Z(e),e.readAsText(t),r;if(this._bodyArrayBuffer)return Promise.resolve(function(t){for(var e=new Uint8Array(t),r=new Array(e.length),n=0;n<e.length;n++)r[n]=String.fromCharCode(e[n]);return r.join("")}(this._bodyArrayBuffer));if(this._bodyFormData)throw new Error("could not read FormData body as text");return Promise.resolve(this._bodyText)},k&&(this.formData=function(){return this.text().then(rt)}),this.json=function(){return this.text().then(JSON.parse)},this}
+// HTTP methods whose capitalization should be normalized
+K.prototype.append=function(t,e){t=W(t),e=X(e);var r=this.map[t];this.map[t]=r?r+", "+e:e},K.prototype.delete=function(t){delete this.map[W(t)]},K.prototype.get=function(t){return t=W(t),this.has(t)?this.map[t]:null},K.prototype.has=function(t){return this.map.hasOwnProperty(W(t))},K.prototype.set=function(t,e){this.map[W(t)]=X(e)},K.prototype.forEach=function(t,e){for(var r in this.map)this.map.hasOwnProperty(r)&&t.call(e,this.map[r],r,this)},K.prototype.keys=function(){var t=[];return this.forEach((function(e,r){t.push(r)})),z(t)},K.prototype.values=function(){var t=[];return this.forEach((function(e){t.push(e)})),z(t)},K.prototype.entries=function(){var t=[];return this.forEach((function(e,r){t.push([r,e])})),z(t)},D&&(K.prototype[Symbol.iterator]=K.prototype.entries);var tt=["DELETE","GET","HEAD","OPTIONS","POST","PUT"];function et(t,e){if(!(this instanceof et))throw new TypeError('Please use the "new" operator, this DOM object constructor cannot be called as a function.');var r,n,o=(e=e||{}).body;if(t instanceof et){if(t.bodyUsed)throw new TypeError("Already read");this.url=t.url,this.credentials=t.credentials,e.headers||(this.headers=new K(t.headers)),this.method=t.method,this.mode=t.mode,this.signal=t.signal,o||null==t._bodyInit||(o=t._bodyInit,t.bodyUsed=!0)}else this.url=String(t);if(this.credentials=e.credentials||this.credentials||"same-origin",!e.headers&&this.headers||(this.headers=new K(e.headers)),this.method=(r=e.method||this.method||"GET",n=r.toUpperCase(),tt.indexOf(n)>-1?n:r),this.mode=e.mode||this.mode||null,this.signal=e.signal||this.signal,this.referrer=null,("GET"===this.method||"HEAD"===this.method)&&o)throw new TypeError("Body not allowed for GET or HEAD requests");if(this._initBody(o),!("GET"!==this.method&&"HEAD"!==this.method||"no-store"!==e.cache&&"no-cache"!==e.cache)){
+// Search for a '_' parameter in the query string
+var i=/([?&])_=[^&]*/;if(i.test(this.url))
+// If it already exists then set the value with the current time
+this.url=this.url.replace(i,"$1_="+(new Date).getTime());else{this.url+=(/\?/.test(this.url)?"&":"?")+"_="+(new Date).getTime()}}}function rt(t){var e=new FormData;return t.trim().split("&").forEach((function(t){if(t){var r=t.split("="),n=r.shift().replace(/\+/g," "),o=r.join("=").replace(/\+/g," ");e.append(decodeURIComponent(n),decodeURIComponent(o))}})),e}function nt(t,e){if(!(this instanceof nt))throw new TypeError('Please use the "new" operator, this DOM object constructor cannot be called as a function.');e||(e={}),this.type="default",this.status=void 0===e.status?200:e.status,this.ok=this.status>=200&&this.status<300,this.statusText=void 0===e.statusText?"":""+e.statusText,this.headers=new K(e.headers),this.url=e.url||"",this._initBody(t)}et.prototype.clone=function(){return new et(this,{body:this._bodyInit})},Q.call(et.prototype),Q.call(nt.prototype),nt.prototype.clone=function(){return new nt(this._bodyInit,{status:this.status,statusText:this.statusText,headers:new K(this.headers),url:this.url})},nt.error=function(){var t=new nt(null,{status:0,statusText:""});return t.type="error",t};var ot=[301,302,303,307,308];nt.redirect=function(t,e){if(-1===ot.indexOf(e))throw new RangeError("Invalid status code");return new nt(null,{status:e,headers:{location:t}})};var it=G.DOMException;try{new it}catch(t){(it=function(t,e){this.message=t,this.name=e;var r=Error(t);this.stack=r.stack}).prototype=Object.create(Error.prototype),it.prototype.constructor=it}function at(t,e){return new Promise((function(r,n){var o=new et(t,e);if(o.signal&&o.signal.aborted)return n(new it("Aborted","AbortError"));var i=new XMLHttpRequest;function a(){i.abort()}i.onload=function(){var t,e,n={status:i.status,statusText:i.statusText,headers:(t=i.getAllResponseHeaders()||"",e=new K,
+// Avoiding split via regex to work around a common IE11 bug with the core-js 3.6.0 regex polyfill
+// https://github.com/github/fetch/issues/748
+// https://github.com/zloirock/core-js/issues/751
+t.replace(/\r?\n[\t ]+/g," ").split("\r").map((function(t){return 0===t.indexOf("\n")?t.substr(1,t.length):t})).forEach((function(t){var r=t.split(":"),n=r.shift().trim();if(n){var o=r.join(":").trim();e.append(n,o)}})),e)};n.url="responseURL"in i?i.responseURL:n.headers.get("X-Request-URL");var o="response"in i?i.response:i.responseText;setTimeout((function(){r(new nt(o,n))}),0)},i.onerror=function(){setTimeout((function(){n(new TypeError("Network request failed"))}),0)},i.ontimeout=function(){setTimeout((function(){n(new TypeError("Network request failed"))}),0)},i.onabort=function(){setTimeout((function(){n(new it("Aborted","AbortError"))}),0)},i.open(o.method,function(t){try{return""===t&&G.location.href?G.location.href:t}catch(e){return t}}(o.url),!0),"include"===o.credentials?i.withCredentials=!0:"omit"===o.credentials&&(i.withCredentials=!1),"responseType"in i&&(F?i.responseType="blob":$&&o.headers.get("Content-Type")&&-1!==o.headers.get("Content-Type").indexOf("application/octet-stream")&&(i.responseType="arraybuffer")),!e||"object"!=typeof e.headers||e.headers instanceof K?o.headers.forEach((function(t,e){i.setRequestHeader(e,t)})):Object.getOwnPropertyNames(e.headers).forEach((function(t){i.setRequestHeader(t,X(e.headers[t]))})),o.signal&&(o.signal.addEventListener("abort",a),i.onreadystatechange=function(){
+// DONE (success or failure)
+4===i.readyState&&o.signal.removeEventListener("abort",a)}),i.send(void 0===o._bodyInit?null:o._bodyInit)}))}at.polyfill=!0,G.fetch||(G.fetch=at,G.Headers=K,G.Request=et,G.Response=nt),
+// the whatwg-fetch polyfill installs the fetch() function
+// on the global object (window or self)
+// Return that as the export for use in Webpack, Browserify etc.
+self.fetch.bind(self);
+/******************************************************************************
+    Copyright (c) Microsoft Corporation.
+
+    Permission to use, copy, modify, and/or distribute this software for any
+    purpose with or without fee is hereby granted.
+
+    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+    REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+    AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+    INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+    LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+    OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+    PERFORMANCE OF THIS SOFTWARE.
+    ***************************************************************************** */
+/* global Reflect, Promise */
+var st=function(t,e){return st=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var r in e)Object.prototype.hasOwnProperty.call(e,r)&&(t[r]=e[r])},st(t,e)};function lt(t,e){if("function"!=typeof e&&null!==e)throw new TypeError("Class extends value "+String(e)+" is not a constructor or null");function r(){this.constructor=t}st(t,e),t.prototype=null===e?Object.create(e):(r.prototype=e.prototype,new r)}function ut(t){var e="function"==typeof Symbol&&Symbol.iterator,r=e&&t[e],n=0;if(r)return r.call(t);if(t&&"number"==typeof t.length)return{next:function(){return t&&n>=t.length&&(t=void 0),{value:t&&t[n++],done:!t}}};throw new TypeError(e?"Object is not iterable.":"Symbol.iterator is not defined.")}function ct(t,e){var r="function"==typeof Symbol&&t[Symbol.iterator];if(!r)return t;var n,o,i=r.call(t),a=[];try{for(;(void 0===e||e-- >0)&&!(n=i.next()).done;)a.push(n.value)}catch(t){o={error:t}}finally{try{n&&!n.done&&(r=i.return)&&r.call(i)}finally{if(o)throw o.error}}return a}function ht(t,e,r){if(r||2===arguments.length)for(var n,o=0,i=e.length;o<i;o++)!n&&o in e||(n||(n=Array.prototype.slice.call(e,0,o)),n[o]=e[o]);return t.concat(n||Array.prototype.slice.call(e))}function ft(t){return"function"==typeof t}function pt(t){var e=t((function(t){Error.call(t),t.stack=(new Error).stack}));return e.prototype=Object.create(Error.prototype),e.prototype.constructor=e,e}var dt=pt((function(t){return function(e){t(this),this.message=e?e.length+" errors occurred during unsubscription:\n"+e.map((function(t,e){return e+1+") "+t.toString()})).join("\n  "):"",this.name="UnsubscriptionError",this.errors=e}}));function mt(t,e){if(t){var r=t.indexOf(e);0<=r&&t.splice(r,1)}}var yt=function(){function t(t){this.initialTeardown=t,this.closed=!1,this._parentage=null,this._finalizers=null}var e;return t.prototype.unsubscribe=function(){var t,e,r,n,o;if(!this.closed){this.closed=!0;var i=this._parentage;if(i)if(this._parentage=null,Array.isArray(i))try{for(var a=ut(i),s=a.next();!s.done;s=a.next()){s.value.remove(this)}}catch(e){t={error:e}}finally{try{s&&!s.done&&(e=a.return)&&e.call(a)}finally{if(t)throw t.error}}else i.remove(this);var l=this.initialTeardown;if(ft(l))try{l()}catch(t){o=t instanceof dt?t.errors:[t]}var u=this._finalizers;if(u){this._finalizers=null;try{for(var c=ut(u),h=c.next();!h.done;h=c.next()){var f=h.value;try{vt(f)}catch(t){o=null!=o?o:[],t instanceof dt?o=ht(ht([],ct(o)),ct(t.errors)):o.push(t)}}}catch(t){r={error:t}}finally{try{h&&!h.done&&(n=c.return)&&n.call(c)}finally{if(r)throw r.error}}}if(o)throw new dt(o)}},t.prototype.add=function(e){var r;if(e&&e!==this)if(this.closed)vt(e);else{if(e instanceof t){if(e.closed||e._hasParent(this))return;e._addParent(this)}(this._finalizers=null!==(r=this._finalizers)&&void 0!==r?r:[]).push(e)}},t.prototype._hasParent=function(t){var e=this._parentage;return e===t||Array.isArray(e)&&e.includes(t)},t.prototype._addParent=function(t){var e=this._parentage;this._parentage=Array.isArray(e)?(e.push(t),e):e?[e,t]:t},t.prototype._removeParent=function(t){var e=this._parentage;e===t?this._parentage=null:Array.isArray(e)&&mt(e,t)},t.prototype.remove=function(e){var r=this._finalizers;r&&mt(r,e),e instanceof t&&e._removeParent(this)},t.EMPTY=((e=new t).closed=!0,e),t}(),bt=yt.EMPTY;function gt(t){return t instanceof yt||t&&"closed"in t&&ft(t.remove)&&ft(t.add)&&ft(t.unsubscribe)}function vt(t){ft(t)?t():t.unsubscribe()}var Et={onUnhandledError:null,onStoppedNotification:null,Promise:void 0,useDeprecatedSynchronousErrorHandling:!1,useDeprecatedNextContext:!1},_t={setTimeout:function(t,e){for(var r=[],n=2;n<arguments.length;n++)r[n-2]=arguments[n];var o=_t.delegate;return(null==o?void 0:o.setTimeout)?o.setTimeout.apply(o,ht([t,e],ct(r))):setTimeout.apply(void 0,ht([t,e],ct(r)))},clearTimeout:function(t){var e=_t.delegate;return((null==e?void 0:e.clearTimeout)||clearTimeout)(t)},delegate:void 0};function wt(){}var Tt=null;function Bt(t){if(Et.useDeprecatedSynchronousErrorHandling){var e=!Tt;if(e&&(Tt={errorThrown:!1,error:null}),t(),e){var r=Tt,n=r.errorThrown,o=r.error;if(Tt=null,n)throw o}}else t()}var At=function(t){function e(e){var r=t.call(this)||this;return r.isStopped=!1,e?(r.destination=e,gt(e)&&e.add(r)):r.destination=Ot,r}return lt(e,t),e.create=function(t,e,r){return new Rt(t,e,r)},e.prototype.next=function(t){this.isStopped||this._next(t)},e.prototype.error=function(t){this.isStopped||(this.isStopped=!0,this._error(t))},e.prototype.complete=function(){this.isStopped||(this.isStopped=!0,this._complete())},e.prototype.unsubscribe=function(){this.closed||(this.isStopped=!0,t.prototype.unsubscribe.call(this),this.destination=null)},e.prototype._next=function(t){this.destination.next(t)},e.prototype._error=function(t){try{this.destination.error(t)}finally{this.unsubscribe()}},e.prototype._complete=function(){try{this.destination.complete()}finally{this.unsubscribe()}},e}(yt),Ht=Function.prototype.bind;function St(t,e){return Ht.call(t,e)}var Pt=function(){function t(t){this.partialObserver=t}return t.prototype.next=function(t){var e=this.partialObserver;if(e.next)try{e.next(t)}catch(t){Lt(t)}},t.prototype.error=function(t){var e=this.partialObserver;if(e.error)try{e.error(t)}catch(t){Lt(t)}else Lt(t)},t.prototype.complete=function(){var t=this.partialObserver;if(t.complete)try{t.complete()}catch(t){Lt(t)}},t}(),Rt=function(t){function e(e,r,n){var o,i,a=t.call(this)||this;ft(e)||!e?o={next:null!=e?e:void 0,error:null!=r?r:void 0,complete:null!=n?n:void 0}:a&&Et.useDeprecatedNextContext?((i=Object.create(e)).unsubscribe=function(){return a.unsubscribe()},o={next:e.next&&St(e.next,i),error:e.error&&St(e.error,i),complete:e.complete&&St(e.complete,i)}):o=e;return a.destination=new Pt(o),a}return lt(e,t),e}(At);function Lt(t){var e;e=t,_t.setTimeout((function(){throw e}))}var Ot={closed:!0,next:wt,error:function(t){throw t},complete:wt},Ct="function"==typeof Symbol&&Symbol.observable||"@@observable";function It(t){return t}function xt(t){return 0===t.length?It:1===t.length?t[0]:function(e){return t.reduce((function(t,e){return e(t)}),e)}}var Mt=function(){function t(t){t&&(this._subscribe=t)}return t.prototype.lift=function(e){var r=new t;return r.source=this,r.operator=e,r},t.prototype.subscribe=function(t,e,r){var n,o=this,i=(n=t)&&n instanceof At||function(t){return t&&ft(t.next)&&ft(t.error)&&ft(t.complete)}(n)&&gt(n)?t:new Rt(t,e,r);return Bt((function(){var t=o,e=t.operator,r=t.source;i.add(e?e.call(i,r):r?o._subscribe(i):o._trySubscribe(i))})),i},t.prototype._trySubscribe=function(t){try{return this._subscribe(t)}catch(e){t.error(e)}},t.prototype.forEach=function(t,e){var r=this;return new(e=Nt(e))((function(e,n){var o=new Rt({next:function(e){try{t(e)}catch(t){n(t),o.unsubscribe()}},error:n,complete:e});r.subscribe(o)}))},t.prototype._subscribe=function(t){var e;return null===(e=this.source)||void 0===e?void 0:e.subscribe(t)},t.prototype[Ct]=function(){return this},t.prototype.pipe=function(){for(var t=[],e=0;e<arguments.length;e++)t[e]=arguments[e];return xt(t)(this)},t.prototype.toPromise=function(t){var e=this;return new(t=Nt(t))((function(t,r){var n;e.subscribe((function(t){return n=t}),(function(t){return r(t)}),(function(){return t(n)}))}))},t.create=function(e){return new t(e)},t}();function Nt(t){var e;return null!==(e=null!=t?t:Et.Promise)&&void 0!==e?e:Promise}var Gt=pt((function(t){return function(){t(this),this.name="ObjectUnsubscribedError",this.message="object unsubscribed"}})),Ut=function(t){function e(){var e=t.call(this)||this;return e.closed=!1,e.currentObservers=null,e.observers=[],e.isStopped=!1,e.hasError=!1,e.thrownError=null,e}return lt(e,t),e.prototype.lift=function(t){var e=new Dt(this,this);return e.operator=t,e},e.prototype._throwIfClosed=function(){if(this.closed)throw new Gt},e.prototype.next=function(t){var e=this;Bt((function(){var r,n;if(e._throwIfClosed(),!e.isStopped){e.currentObservers||(e.currentObservers=Array.from(e.observers));try{for(var o=ut(e.currentObservers),i=o.next();!i.done;i=o.next()){i.value.next(t)}}catch(t){r={error:t}}finally{try{i&&!i.done&&(n=o.return)&&n.call(o)}finally{if(r)throw r.error}}}}))},e.prototype.error=function(t){var e=this;Bt((function(){if(e._throwIfClosed(),!e.isStopped){e.hasError=e.isStopped=!0,e.thrownError=t;for(var r=e.observers;r.length;)r.shift().error(t)}}))},e.prototype.complete=function(){var t=this;Bt((function(){if(t._throwIfClosed(),!t.isStopped){t.isStopped=!0;for(var e=t.observers;e.length;)e.shift().complete()}}))},e.prototype.unsubscribe=function(){this.isStopped=this.closed=!0,this.observers=this.currentObservers=null},Object.defineProperty(e.prototype,"observed",{get:function(){var t;return(null===(t=this.observers)||void 0===t?void 0:t.length)>0},enumerable:!1,configurable:!0}),e.prototype._trySubscribe=function(e){return this._throwIfClosed(),t.prototype._trySubscribe.call(this,e)},e.prototype._subscribe=function(t){return this._throwIfClosed(),this._checkFinalizedStatuses(t),this._innerSubscribe(t)},e.prototype._innerSubscribe=function(t){var e=this,r=this,n=r.hasError,o=r.isStopped,i=r.observers;return n||o?bt:(this.currentObservers=null,i.push(t),new yt((function(){e.currentObservers=null,mt(i,t)})))},e.prototype._checkFinalizedStatuses=function(t){var e=this,r=e.hasError,n=e.thrownError,o=e.isStopped;r?t.error(n):o&&t.complete()},e.prototype.asObservable=function(){var t=new Mt;return t.source=this,t},e.create=function(t,e){return new Dt(t,e)},e}(Mt),Dt=function(t){function e(e,r){var n=t.call(this)||this;return n.destination=e,n.source=r,n}return lt(e,t),e.prototype.next=function(t){var e,r;null===(r=null===(e=this.destination)||void 0===e?void 0:e.next)||void 0===r||r.call(e,t)},e.prototype.error=function(t){var e,r;null===(r=null===(e=this.destination)||void 0===e?void 0:e.error)||void 0===r||r.call(e,t)},e.prototype.complete=function(){var t,e;null===(e=null===(t=this.destination)||void 0===t?void 0:t.complete)||void 0===e||e.call(t)},e.prototype._subscribe=function(t){var e,r;return null!==(r=null===(e=this.source)||void 0===e?void 0:e.subscribe(t))&&void 0!==r?r:bt},e}(Ut),Ft={now:function(){return(Ft.delegate||Date).now()},delegate:void 0},kt=function(t){function e(e,r,n){void 0===e&&(e=1/0),void 0===r&&(r=1/0),void 0===n&&(n=Ft);var o=t.call(this)||this;return o._bufferSize=e,o._windowTime=r,o._timestampProvider=n,o._buffer=[],o._infiniteTimeWindow=!0,o._infiniteTimeWindow=r===1/0,o._bufferSize=Math.max(1,e),o._windowTime=Math.max(1,r),o}return lt(e,t),e.prototype.next=function(e){var r=this,n=r.isStopped,o=r._buffer,i=r._infiniteTimeWindow,a=r._timestampProvider,s=r._windowTime;n||(o.push(e),!i&&o.push(a.now()+s)),this._trimBuffer(),t.prototype.next.call(this,e)},e.prototype._subscribe=function(t){this._throwIfClosed(),this._trimBuffer();for(var e=this._innerSubscribe(t),r=this._infiniteTimeWindow,n=this._buffer.slice(),o=0;o<n.length&&!t.closed;o+=r?1:2)t.next(n[o]);return this._checkFinalizedStatuses(t),e},e.prototype._trimBuffer=function(){var t=this,e=t._bufferSize,r=t._timestampProvider,n=t._buffer,o=t._infiniteTimeWindow,i=(o?1:2)*e;if(e<1/0&&i<n.length&&n.splice(0,n.length-i),!o){for(var a=r.now(),s=0,l=1;l<n.length&&n[l]<=a;l+=2)s=l;s&&n.splice(0,s+1)}},e}(Ut);let $t=[],jt={};
+/**
+     * @name topic
+     * @description A small wrapper over the rxjs to offer the topic method on top of it
+     * @param event [String] Event name
+     * @param step [String] How many values to be buffed for new subscribers - default 0
+     * @returns ReplaySubject
+     */
+const Vt=[];
+/**
+     * Create a `Writable` store that allows both updating and reading by subscription.
+     * @param {*=}value initial value
+     * @param {StartStopNotifier=}start start and stop notifications for subscriptions
+     */
+function Wt(e,r=t){let n;const o=new Set;function a(t){if(i(e,t)&&(e=t,n)){// store is ready
+const t=!Vt.length;for(const t of o)t[1](),Vt.push(t,e);if(t){for(let t=0;t<Vt.length;t+=2)Vt[t][0](Vt[t+1]);Vt.length=0}}}return{set:a,update:function(t){a(t(e))},subscribe:function(i,s=t){const l=[i,s];return o.add(l),1===o.size&&(n=r(a)||t),i(e),()=>{o.delete(l),0===o.size&&(n(),n=null)}}}}function Xt(e,r,i){const a=!Array.isArray(e),s=a?[e]:e,l=r.length<2;return c=e=>{let i=!1;const c=[];let h=0,f=t;const p=()=>{if(h)return;f();const n=r(a?c[0]:c,e);l?e(n):f=o(n)?n:t},d=s.map(((t,e)=>u(t,(t=>{c[e]=t,h&=~(1<<e),i&&p()}),(()=>{h|=1<<e}))));return i=!0,p(),function(){n(d),f()}},{subscribe:Wt(i,c).subscribe};
+/**
+     * Creates a `Readable` store that allows reading by subscription.
+     * @param value initial value
+     * @param {StartStopNotifier}start start and stop notifications for subscriptions
+     */
+var c}var zt=function(t){return function(t){return!!t&&"object"==typeof t}(t)&&!function(t){var e=Object.prototype.toString.call(t);return"[object RegExp]"===e||"[object Date]"===e||function(t){return t.$$typeof===Kt}(t)}
+// see https://github.com/facebook/react/blob/b5ac963fb791d1298e7f396236383bc955f916c1/src/isomorphic/classic/element/ReactElement.js#L21-L25
+(t)};var Kt="function"==typeof Symbol&&Symbol.for?Symbol.for("react.element"):60103;function Yt(t,e){return!1!==e.clone&&e.isMergeableObject(t)?te((r=t,Array.isArray(r)?[]:{}),t,e):t;var r}function Zt(t,e,r){return t.concat(e).map((function(t){return Yt(t,r)}))}function Jt(t){return Object.keys(t).concat(function(t){return Object.getOwnPropertySymbols?Object.getOwnPropertySymbols(t).filter((function(e){return t.propertyIsEnumerable(e)})):[]}(t))}function qt(t,e){try{return e in t}catch(t){return!1}}
+// Protects from prototype poisoning and unexpected merging up the prototype chain.
+function Qt(t,e,r){var n={};return r.isMergeableObject(t)&&Jt(t).forEach((function(e){n[e]=Yt(t[e],r)})),Jt(e).forEach((function(o){(function(t,e){return qt(t,e)&&!(Object.hasOwnProperty.call(t,e)&&Object.propertyIsEnumerable.call(t,e));// and also unsafe if they're nonenumerable.
+})(t,o)||(qt(t,o)&&r.isMergeableObject(e[o])?n[o]=function(t,e){if(!e.customMerge)return te;var r=e.customMerge(t);return"function"==typeof r?r:te}(o,r)(t[o],e[o],r):n[o]=Yt(e[o],r))})),n}function te(t,e,r){(r=r||{}).arrayMerge=r.arrayMerge||Zt,r.isMergeableObject=r.isMergeableObject||zt,
+// cloneUnlessOtherwiseSpecified is added to `options` so that custom arrayMerge()
+// implementations can use it. The caller may not replace it.
+r.cloneUnlessOtherwiseSpecified=Yt;var n=Array.isArray(e);return n===Array.isArray(t)?n?r.arrayMerge(t,e,r):Qt(t,e,r):Yt(e,r)}te.all=function(t,e){if(!Array.isArray(t))throw new Error("first argument should be an array");return t.reduce((function(t,r){return te(t,r,e)}),{})};var ee=te,re=function(t,e){return re=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,e){t.__proto__=e}||function(t,e){for(var r in e)Object.prototype.hasOwnProperty.call(e,r)&&(t[r]=e[r])},re(t,e)};function ne(t,e){if("function"!=typeof e&&null!==e)throw new TypeError("Class extends value "+String(e)+" is not a constructor or null");function r(){this.constructor=t}re(t,e),t.prototype=null===e?Object.create(e):(r.prototype=e.prototype,new r)}var oe,ie,ae,se=function(){return se=Object.assign||function(t){for(var e,r=1,n=arguments.length;r<n;r++)for(var o in e=arguments[r])Object.prototype.hasOwnProperty.call(e,o)&&(t[o]=e[o]);return t},se.apply(this,arguments)};function le(t,e,r){if(r||2===arguments.length)for(var n,o=0,i=e.length;o<i;o++)!n&&o in e||(n||(n=Array.prototype.slice.call(e,0,o)),n[o]=e[o]);return t.concat(n||Array.prototype.slice.call(e))}
+/**
+     * Type Guards
+     */
+function ue(t){return t.type===ie.literal}function ce(t){return t.type===ie.argument}function he(t){return t.type===ie.number}function fe(t){return t.type===ie.date}function pe(t){return t.type===ie.time}function de(t){return t.type===ie.select}function me(t){return t.type===ie.plural}function ye(t){return t.type===ie.pound}function be(t){return t.type===ie.tag}function ge(t){return!(!t||"object"!=typeof t||t.type!==ae.number)}function ve(t){return!(!t||"object"!=typeof t||t.type!==ae.dateTime)}
+// @generated from regex-gen.ts
+!function(t){
+/** Argument is unclosed (e.g. `{0`) */
+t[t.EXPECT_ARGUMENT_CLOSING_BRACE=1]="EXPECT_ARGUMENT_CLOSING_BRACE",
+/** Argument is empty (e.g. `{}`). */
+t[t.EMPTY_ARGUMENT=2]="EMPTY_ARGUMENT",
+/** Argument is malformed (e.g. `{foo!}``) */
+t[t.MALFORMED_ARGUMENT=3]="MALFORMED_ARGUMENT",
+/** Expect an argument type (e.g. `{foo,}`) */
+t[t.EXPECT_ARGUMENT_TYPE=4]="EXPECT_ARGUMENT_TYPE",
+/** Unsupported argument type (e.g. `{foo,foo}`) */
+t[t.INVALID_ARGUMENT_TYPE=5]="INVALID_ARGUMENT_TYPE",
+/** Expect an argument style (e.g. `{foo, number, }`) */
+t[t.EXPECT_ARGUMENT_STYLE=6]="EXPECT_ARGUMENT_STYLE",
+/** The number skeleton is invalid. */
+t[t.INVALID_NUMBER_SKELETON=7]="INVALID_NUMBER_SKELETON",
+/** The date time skeleton is invalid. */
+t[t.INVALID_DATE_TIME_SKELETON=8]="INVALID_DATE_TIME_SKELETON",
+/** Exepct a number skeleton following the `::` (e.g. `{foo, number, ::}`) */
+t[t.EXPECT_NUMBER_SKELETON=9]="EXPECT_NUMBER_SKELETON",
+/** Exepct a date time skeleton following the `::` (e.g. `{foo, date, ::}`) */
+t[t.EXPECT_DATE_TIME_SKELETON=10]="EXPECT_DATE_TIME_SKELETON",
+/** Unmatched apostrophes in the argument style (e.g. `{foo, number, 'test`) */
+t[t.UNCLOSED_QUOTE_IN_ARGUMENT_STYLE=11]="UNCLOSED_QUOTE_IN_ARGUMENT_STYLE",
+/** Missing select argument options (e.g. `{foo, select}`) */
+t[t.EXPECT_SELECT_ARGUMENT_OPTIONS=12]="EXPECT_SELECT_ARGUMENT_OPTIONS",
+/** Expecting an offset value in `plural` or `selectordinal` argument (e.g `{foo, plural, offset}`) */
+t[t.EXPECT_PLURAL_ARGUMENT_OFFSET_VALUE=13]="EXPECT_PLURAL_ARGUMENT_OFFSET_VALUE",
+/** Offset value in `plural` or `selectordinal` is invalid (e.g. `{foo, plural, offset: x}`) */
+t[t.INVALID_PLURAL_ARGUMENT_OFFSET_VALUE=14]="INVALID_PLURAL_ARGUMENT_OFFSET_VALUE",
+/** Expecting a selector in `select` argument (e.g `{foo, select}`) */
+t[t.EXPECT_SELECT_ARGUMENT_SELECTOR=15]="EXPECT_SELECT_ARGUMENT_SELECTOR",
+/** Expecting a selector in `plural` or `selectordinal` argument (e.g `{foo, plural}`) */
+t[t.EXPECT_PLURAL_ARGUMENT_SELECTOR=16]="EXPECT_PLURAL_ARGUMENT_SELECTOR",
+/** Expecting a message fragment after the `select` selector (e.g. `{foo, select, apple}`) */
+t[t.EXPECT_SELECT_ARGUMENT_SELECTOR_FRAGMENT=17]="EXPECT_SELECT_ARGUMENT_SELECTOR_FRAGMENT",
+/**
+         * Expecting a message fragment after the `plural` or `selectordinal` selector
+         * (e.g. `{foo, plural, one}`)
+         */
+t[t.EXPECT_PLURAL_ARGUMENT_SELECTOR_FRAGMENT=18]="EXPECT_PLURAL_ARGUMENT_SELECTOR_FRAGMENT",
+/** Selector in `plural` or `selectordinal` is malformed (e.g. `{foo, plural, =x {#}}`) */
+t[t.INVALID_PLURAL_ARGUMENT_SELECTOR=19]="INVALID_PLURAL_ARGUMENT_SELECTOR",
+/**
+         * Duplicate selectors in `plural` or `selectordinal` argument.
+         * (e.g. {foo, plural, one {#} one {#}})
+         */
+t[t.DUPLICATE_PLURAL_ARGUMENT_SELECTOR=20]="DUPLICATE_PLURAL_ARGUMENT_SELECTOR",
+/** Duplicate selectors in `select` argument.
+         * (e.g. {foo, select, apple {apple} apple {apple}})
+         */
+t[t.DUPLICATE_SELECT_ARGUMENT_SELECTOR=21]="DUPLICATE_SELECT_ARGUMENT_SELECTOR",
+/** Plural or select argument option must have `other` clause. */
+t[t.MISSING_OTHER_CLAUSE=22]="MISSING_OTHER_CLAUSE",
+/** The tag is malformed. (e.g. `<bold!>foo</bold!>) */
+t[t.INVALID_TAG=23]="INVALID_TAG",
+/** The tag name is invalid. (e.g. `<123>foo</123>`) */
+t[t.INVALID_TAG_NAME=25]="INVALID_TAG_NAME",
+/** The closing tag does not match the opening tag. (e.g. `<bold>foo</italic>`) */
+t[t.UNMATCHED_CLOSING_TAG=26]="UNMATCHED_CLOSING_TAG",
+/** The opening tag has unmatched closing tag. (e.g. `<bold>foo`) */
+t[t.UNCLOSED_TAG=27]="UNCLOSED_TAG"}(oe||(oe={})),function(t){
+/**
+         * Raw text
+         */
+t[t.literal=0]="literal",
+/**
+         * Variable w/o any format, e.g `var` in `this is a {var}`
+         */
+t[t.argument=1]="argument",
+/**
+         * Variable w/ number format
+         */
+t[t.number=2]="number",
+/**
+         * Variable w/ date format
+         */
+t[t.date=3]="date",
+/**
+         * Variable w/ time format
+         */
+t[t.time=4]="time",
+/**
+         * Variable w/ select format
+         */
+t[t.select=5]="select",
+/**
+         * Variable w/ plural format
+         */
+t[t.plural=6]="plural",
+/**
+         * Only possible within plural argument.
+         * This is the `#` symbol that will be substituted with the count.
+         */
+t[t.pound=7]="pound",
+/**
+         * XML-like tag
+         */
+t[t.tag=8]="tag"}(ie||(ie={})),function(t){t[t.number=0]="number",t[t.dateTime=1]="dateTime"}(ae||(ae={}));var Ee=/[ \xA0\u1680\u2000-\u200A\u202F\u205F\u3000]/,_e=/(?:[Eec]{1,6}|G{1,5}|[Qq]{1,5}|(?:[yYur]+|U{1,5})|[ML]{1,5}|d{1,2}|D{1,3}|F{1}|[abB]{1,5}|[hkHK]{1,2}|w{1,2}|W{1}|m{1,2}|s{1,2}|[zZOvVxX]{1,4})(?=([^']*'[^']*')*[^']*$)/g;
+/**
+     * https://unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table
+     * Credit: https://github.com/caridy/intl-datetimeformat-pattern/blob/master/index.js
+     * with some tweaks
+     */
+/**
+     * Parse Date time skeleton into Intl.DateTimeFormatOptions
+     * Ref: https://unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table
+     * @public
+     * @param skeleton skeleton string
+     */
+function we(t){var e={};return t.replace(_e,(function(t){var r=t.length;switch(t[0]){
+// Era
+case"G":e.era=4===r?"long":5===r?"narrow":"short";break;
+// Year
+case"y":e.year=2===r?"2-digit":"numeric";break;case"Y":case"u":case"U":case"r":throw new RangeError("`Y/u/U/r` (year) patterns are not supported, use `y` instead");
+// Quarter
+case"q":case"Q":throw new RangeError("`q/Q` (quarter) patterns are not supported");
+// Month
+case"M":case"L":e.month=["numeric","2-digit","short","long","narrow"][r-1];break;
+// Week
+case"w":case"W":throw new RangeError("`w/W` (week) patterns are not supported");case"d":e.day=["numeric","2-digit"][r-1];break;case"D":case"F":case"g":throw new RangeError("`D/F/g` (day) patterns are not supported, use `d` instead");
+// Weekday
+case"E":e.weekday=4===r?"short":5===r?"narrow":"short";break;case"e":if(r<4)throw new RangeError("`e..eee` (weekday) patterns are not supported");e.weekday=["short","long","narrow","short"][r-4];break;case"c":if(r<4)throw new RangeError("`c..ccc` (weekday) patterns are not supported");e.weekday=["short","long","narrow","short"][r-4];break;
+// Period
+case"a":// AM, PM
+e.hour12=!0;break;case"b":// am, pm, noon, midnight
+case"B":// flexible day periods
+throw new RangeError("`b/B` (period) patterns are not supported, use `a` instead");
+// Hour
+case"h":e.hourCycle="h12",e.hour=["numeric","2-digit"][r-1];break;case"H":e.hourCycle="h23",e.hour=["numeric","2-digit"][r-1];break;case"K":e.hourCycle="h11",e.hour=["numeric","2-digit"][r-1];break;case"k":e.hourCycle="h24",e.hour=["numeric","2-digit"][r-1];break;case"j":case"J":case"C":throw new RangeError("`j/J/C` (hour) patterns are not supported, use `h/H/K/k` instead");
+// Minute
+case"m":e.minute=["numeric","2-digit"][r-1];break;
+// Second
+case"s":e.second=["numeric","2-digit"][r-1];break;case"S":case"A":throw new RangeError("`S/A` (second) patterns are not supported, use `s` instead");
+// Zone
+case"z":// 1..3, 4: specific non-location format
+e.timeZoneName=r<4?"short":"long";break;case"Z":// 1..3, 4, 5: The ISO8601 varios formats
+case"O":// 1, 4: miliseconds in day short, long
+case"v":// 1, 4: generic non-location format
+case"V":// 1, 2, 3, 4: time zone ID or city
+case"X":// 1, 2, 3, 4: The ISO8601 varios formats
+case"x":// 1, 2, 3, 4: The ISO8601 varios formats
+throw new RangeError("`Z/O/v/V/X/x` (timeZone) patterns are not supported, use `z` instead")}return""})),e}
+// @generated from regex-gen.ts
+var Te=/[\t-\r \x85\u200E\u200F\u2028\u2029]/i;var Be=/^\.(?:(0+)(\*)?|(#+)|(0+)(#+))$/g,Ae=/^(@+)?(\+|#+)?[rs]?$/g,He=/(\*)(0+)|(#+)(0+)|(0+)/g,Se=/^(0+)$/;function Pe(t){var e={};return"r"===t[t.length-1]?e.roundingPriority="morePrecision":"s"===t[t.length-1]&&(e.roundingPriority="lessPrecision"),t.replace(Ae,(function(t,r,n){
+// @@@ case
+return"string"!=typeof n?(e.minimumSignificantDigits=r.length,e.maximumSignificantDigits=r.length):"+"===n?e.minimumSignificantDigits=r.length:"#"===r[0]?e.maximumSignificantDigits=r.length:(e.minimumSignificantDigits=r.length,e.maximumSignificantDigits=r.length+("string"==typeof n?n.length:0)),""})),e}function Re(t){switch(t){case"sign-auto":return{signDisplay:"auto"};case"sign-accounting":case"()":return{currencySign:"accounting"};case"sign-always":case"+!":return{signDisplay:"always"};case"sign-accounting-always":case"()!":return{signDisplay:"always",currencySign:"accounting"};case"sign-except-zero":case"+?":return{signDisplay:"exceptZero"};case"sign-accounting-except-zero":case"()?":return{signDisplay:"exceptZero",currencySign:"accounting"};case"sign-never":case"+_":return{signDisplay:"never"}}}function Le(t){
+// Engineering
+var e;if("E"===t[0]&&"E"===t[1]?(e={notation:"engineering"},t=t.slice(2)):"E"===t[0]&&(e={notation:"scientific"},t=t.slice(1)),e){var r=t.slice(0,2);if("+!"===r?(e.signDisplay="always",t=t.slice(2)):"+?"===r&&(e.signDisplay="exceptZero",t=t.slice(2)),!Se.test(t))throw new Error("Malformed concise eng/scientific notation");e.minimumIntegerDigits=t.length}return e}function Oe(t){var e=Re(t);return e||{}}
+/**
+     * https://github.com/unicode-org/icu/blob/master/docs/userguide/format_parse/numbers/skeletons.md#skeleton-stems-and-options
+     */function Ce(t){for(var e={},r=0,n=t;r<n.length;r++){var o=n[r];switch(o.stem){case"percent":case"%":e.style="percent";continue;case"%x100":e.style="percent",e.scale=100;continue;case"currency":e.style="currency",e.currency=o.options[0];continue;case"group-off":case",_":e.useGrouping=!1;continue;case"precision-integer":case".":e.maximumFractionDigits=0;continue;case"measure-unit":case"unit":e.style="unit",e.unit=o.options[0].replace(/^(.*?)-/,"");continue;case"compact-short":case"K":e.notation="compact",e.compactDisplay="short";continue;case"compact-long":case"KK":e.notation="compact",e.compactDisplay="long";continue;case"scientific":e=se(se(se({},e),{notation:"scientific"}),o.options.reduce((function(t,e){return se(se({},t),Oe(e))}),{}));continue;case"engineering":e=se(se(se({},e),{notation:"engineering"}),o.options.reduce((function(t,e){return se(se({},t),Oe(e))}),{}));continue;case"notation-simple":e.notation="standard";continue;
+// https://github.com/unicode-org/icu/blob/master/icu4c/source/i18n/unicode/unumberformatter.h
+case"unit-width-narrow":e.currencyDisplay="narrowSymbol",e.unitDisplay="narrow";continue;case"unit-width-short":e.currencyDisplay="code",e.unitDisplay="short";continue;case"unit-width-full-name":e.currencyDisplay="name",e.unitDisplay="long";continue;case"unit-width-iso-code":e.currencyDisplay="symbol";continue;case"scale":e.scale=parseFloat(o.options[0]);continue;
+// https://unicode-org.github.io/icu/userguide/format_parse/numbers/skeletons.html#integer-width
+case"integer-width":if(o.options.length>1)throw new RangeError("integer-width stems only accept a single optional option");o.options[0].replace(He,(function(t,r,n,o,i,a){if(r)e.minimumIntegerDigits=n.length;else{if(o&&i)throw new Error("We currently do not support maximum integer digits");if(a)throw new Error("We currently do not support exact integer digits")}return""}));continue}
+// https://unicode-org.github.io/icu/userguide/format_parse/numbers/skeletons.html#integer-width
+if(Se.test(o.stem))e.minimumIntegerDigits=o.stem.length;else if(Be.test(o.stem)){
+// Precision
+// https://unicode-org.github.io/icu/userguide/format_parse/numbers/skeletons.html#fraction-precision
+// precision-integer case
+if(o.options.length>1)throw new RangeError("Fraction-precision stems only accept a single optional option");o.stem.replace(Be,(function(t,r,n,o,i,a){
+// .000* case (before ICU67 it was .000+)
+return"*"===n?e.minimumFractionDigits=r.length:o&&"#"===o[0]?e.maximumFractionDigits=o.length:i&&a?(e.minimumFractionDigits=i.length,e.maximumFractionDigits=i.length+a.length):(e.minimumFractionDigits=r.length,e.maximumFractionDigits=r.length),""}));var i=o.options[0];
+// https://unicode-org.github.io/icu/userguide/format_parse/numbers/skeletons.html#trailing-zero-display
+"w"===i?e=se(se({},e),{trailingZeroDisplay:"stripIfInteger"}):i&&(e=se(se({},e),Pe(i)))}
+// https://unicode-org.github.io/icu/userguide/format_parse/numbers/skeletons.html#significant-digits-precision
+else if(Ae.test(o.stem))e=se(se({},e),Pe(o.stem));else{var a=Re(o.stem);a&&(e=se(se({},e),a));var s=Le(o.stem);s&&(e=se(se({},e),s))}}return e}
+// @generated from time-data-gen.ts
+// prettier-ignore  
+var Ie,xe={AX:["H"],BQ:["H"],CP:["H"],CZ:["H"],DK:["H"],FI:["H"],ID:["H"],IS:["H"],ML:["H"],NE:["H"],RU:["H"],SE:["H"],SJ:["H"],SK:["H"],AS:["h","H"],BT:["h","H"],DJ:["h","H"],ER:["h","H"],GH:["h","H"],IN:["h","H"],LS:["h","H"],PG:["h","H"],PW:["h","H"],SO:["h","H"],TO:["h","H"],VU:["h","H"],WS:["h","H"],"001":["H","h"],AL:["h","H","hB"],TD:["h","H","hB"],"ca-ES":["H","h","hB"],CF:["H","h","hB"],CM:["H","h","hB"],"fr-CA":["H","h","hB"],"gl-ES":["H","h","hB"],"it-CH":["H","h","hB"],"it-IT":["H","h","hB"],LU:["H","h","hB"],NP:["H","h","hB"],PF:["H","h","hB"],SC:["H","h","hB"],SM:["H","h","hB"],SN:["H","h","hB"],TF:["H","h","hB"],VA:["H","h","hB"],CY:["h","H","hb","hB"],GR:["h","H","hb","hB"],CO:["h","H","hB","hb"],DO:["h","H","hB","hb"],KP:["h","H","hB","hb"],KR:["h","H","hB","hb"],NA:["h","H","hB","hb"],PA:["h","H","hB","hb"],PR:["h","H","hB","hb"],VE:["h","H","hB","hb"],AC:["H","h","hb","hB"],AI:["H","h","hb","hB"],BW:["H","h","hb","hB"],BZ:["H","h","hb","hB"],CC:["H","h","hb","hB"],CK:["H","h","hb","hB"],CX:["H","h","hb","hB"],DG:["H","h","hb","hB"],FK:["H","h","hb","hB"],GB:["H","h","hb","hB"],GG:["H","h","hb","hB"],GI:["H","h","hb","hB"],IE:["H","h","hb","hB"],IM:["H","h","hb","hB"],IO:["H","h","hb","hB"],JE:["H","h","hb","hB"],LT:["H","h","hb","hB"],MK:["H","h","hb","hB"],MN:["H","h","hb","hB"],MS:["H","h","hb","hB"],NF:["H","h","hb","hB"],NG:["H","h","hb","hB"],NR:["H","h","hb","hB"],NU:["H","h","hb","hB"],PN:["H","h","hb","hB"],SH:["H","h","hb","hB"],SX:["H","h","hb","hB"],TA:["H","h","hb","hB"],ZA:["H","h","hb","hB"],"af-ZA":["H","h","hB","hb"],AR:["H","h","hB","hb"],CL:["H","h","hB","hb"],CR:["H","h","hB","hb"],CU:["H","h","hB","hb"],EA:["H","h","hB","hb"],"es-BO":["H","h","hB","hb"],"es-BR":["H","h","hB","hb"],"es-EC":["H","h","hB","hb"],"es-ES":["H","h","hB","hb"],"es-GQ":["H","h","hB","hb"],"es-PE":["H","h","hB","hb"],GT:["H","h","hB","hb"],HN:["H","h","hB","hb"],IC:["H","h","hB","hb"],KG:["H","h","hB","hb"],KM:["H","h","hB","hb"],LK:["H","h","hB","hb"],MA:["H","h","hB","hb"],MX:["H","h","hB","hb"],NI:["H","h","hB","hb"],PY:["H","h","hB","hb"],SV:["H","h","hB","hb"],UY:["H","h","hB","hb"],JP:["H","h","K"],AD:["H","hB"],AM:["H","hB"],AO:["H","hB"],AT:["H","hB"],AW:["H","hB"],BE:["H","hB"],BF:["H","hB"],BJ:["H","hB"],BL:["H","hB"],BR:["H","hB"],CG:["H","hB"],CI:["H","hB"],CV:["H","hB"],DE:["H","hB"],EE:["H","hB"],FR:["H","hB"],GA:["H","hB"],GF:["H","hB"],GN:["H","hB"],GP:["H","hB"],GW:["H","hB"],HR:["H","hB"],IL:["H","hB"],IT:["H","hB"],KZ:["H","hB"],MC:["H","hB"],MD:["H","hB"],MF:["H","hB"],MQ:["H","hB"],MZ:["H","hB"],NC:["H","hB"],NL:["H","hB"],PM:["H","hB"],PT:["H","hB"],RE:["H","hB"],RO:["H","hB"],SI:["H","hB"],SR:["H","hB"],ST:["H","hB"],TG:["H","hB"],TR:["H","hB"],WF:["H","hB"],YT:["H","hB"],BD:["h","hB","H"],PK:["h","hB","H"],AZ:["H","hB","h"],BA:["H","hB","h"],BG:["H","hB","h"],CH:["H","hB","h"],GE:["H","hB","h"],LI:["H","hB","h"],ME:["H","hB","h"],RS:["H","hB","h"],UA:["H","hB","h"],UZ:["H","hB","h"],XK:["H","hB","h"],AG:["h","hb","H","hB"],AU:["h","hb","H","hB"],BB:["h","hb","H","hB"],BM:["h","hb","H","hB"],BS:["h","hb","H","hB"],CA:["h","hb","H","hB"],DM:["h","hb","H","hB"],"en-001":["h","hb","H","hB"],FJ:["h","hb","H","hB"],FM:["h","hb","H","hB"],GD:["h","hb","H","hB"],GM:["h","hb","H","hB"],GU:["h","hb","H","hB"],GY:["h","hb","H","hB"],JM:["h","hb","H","hB"],KI:["h","hb","H","hB"],KN:["h","hb","H","hB"],KY:["h","hb","H","hB"],LC:["h","hb","H","hB"],LR:["h","hb","H","hB"],MH:["h","hb","H","hB"],MP:["h","hb","H","hB"],MW:["h","hb","H","hB"],NZ:["h","hb","H","hB"],SB:["h","hb","H","hB"],SG:["h","hb","H","hB"],SL:["h","hb","H","hB"],SS:["h","hb","H","hB"],SZ:["h","hb","H","hB"],TC:["h","hb","H","hB"],TT:["h","hb","H","hB"],UM:["h","hb","H","hB"],US:["h","hb","H","hB"],VC:["h","hb","H","hB"],VG:["h","hb","H","hB"],VI:["h","hb","H","hB"],ZM:["h","hb","H","hB"],BO:["H","hB","h","hb"],EC:["H","hB","h","hb"],ES:["H","hB","h","hb"],GQ:["H","hB","h","hb"],PE:["H","hB","h","hb"],AE:["h","hB","hb","H"],"ar-001":["h","hB","hb","H"],BH:["h","hB","hb","H"],DZ:["h","hB","hb","H"],EG:["h","hB","hb","H"],EH:["h","hB","hb","H"],HK:["h","hB","hb","H"],IQ:["h","hB","hb","H"],JO:["h","hB","hb","H"],KW:["h","hB","hb","H"],LB:["h","hB","hb","H"],LY:["h","hB","hb","H"],MO:["h","hB","hb","H"],MR:["h","hB","hb","H"],OM:["h","hB","hb","H"],PH:["h","hB","hb","H"],PS:["h","hB","hb","H"],QA:["h","hB","hb","H"],SA:["h","hB","hb","H"],SD:["h","hB","hb","H"],SY:["h","hB","hb","H"],TN:["h","hB","hb","H"],YE:["h","hB","hb","H"],AF:["H","hb","hB","h"],LA:["H","hb","hB","h"],CN:["H","hB","hb","h"],LV:["H","hB","hb","h"],TL:["H","hB","hb","h"],"zu-ZA":["H","hB","hb","h"],CD:["hB","H"],IR:["hB","H"],"hi-IN":["hB","h","H"],"kn-IN":["hB","h","H"],"ml-IN":["hB","h","H"],"te-IN":["hB","h","H"],KH:["hB","h","H","hb"],"ta-IN":["hB","h","hb","H"],BN:["hb","hB","h","H"],MY:["hb","hB","h","H"],ET:["hB","hb","h","H"],"gu-IN":["hB","hb","h","H"],"mr-IN":["hB","hb","h","H"],"pa-IN":["hB","hb","h","H"],TW:["hB","hb","h","H"],KE:["hB","hb","H","h"],MM:["hB","hb","H","h"],TZ:["hB","hb","H","h"],UG:["hB","hb","H","h"]};
+/**
+     * Returns the best matching date time pattern if a date time skeleton
+     * pattern is provided with a locale. Follows the Unicode specification:
+     * https://www.unicode.org/reports/tr35/tr35-dates.html#table-mapping-requested-time-skeletons-to-patterns
+     * @param skeleton date time skeleton pattern that possibly includes j, J or C
+     * @param locale
+     */
+/**
+     * Maps the [hour cycle type](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Locale/hourCycle)
+     * of the given `locale` to the corresponding time pattern.
+     * @param locale
+     */
+function Me(t){var e=t.hourCycle;if(void 0===e&&
+// @ts-ignore hourCycle(s) is not identified yet
+t.hourCycles&&
+// @ts-ignore
+t.hourCycles.length&&(
+// @ts-ignore
+e=t.hourCycles[0]),e)switch(e){case"h24":return"k";case"h23":return"H";case"h12":return"h";case"h11":return"K";default:throw new Error("Invalid hourCycle")}
+// TODO: Once hourCycle is fully supported remove the following with data generation
+var r,n=t.language;return"root"!==n&&(r=t.maximize().region),(xe[r||""]||xe[n||""]||xe["".concat(n,"-001")]||xe["001"])[0]}var Ne=new RegExp("^".concat(Ee.source,"*")),Ge=new RegExp("".concat(Ee.source,"*$"));function Ue(t,e){return{start:t,end:e}}
+// #region Ponyfills
+// Consolidate these variables up top for easier toggling during debugging
+var De=!!String.prototype.startsWith,Fe=!!String.fromCodePoint,ke=!!Object.fromEntries,$e=!!String.prototype.codePointAt,je=!!String.prototype.trimStart,Ve=!!String.prototype.trimEnd,We=!!Number.isSafeInteger?Number.isSafeInteger:function(t){return"number"==typeof t&&isFinite(t)&&Math.floor(t)===t&&Math.abs(t)<=9007199254740991},Xe=!0;try{
+/**
+         * legacy Edge or Xbox One browser
+         * Unicode flag support: supported
+         * Pattern_Syntax support: not supported
+         * See https://github.com/formatjs/formatjs/issues/2822
+         */
+Xe="a"===(null===(Ie=tr("([^\\p{White_Space}\\p{Pattern_Syntax}]*)","yu").exec("a"))||void 0===Ie?void 0:Ie[0])}catch(t){Xe=!1}var ze,Ke=De?// Native
+function(t,e,r){return t.startsWith(e,r)}:// For IE11
+function(t,e,r){return t.slice(r,r+e.length)===e},Ye=Fe?String.fromCodePoint:// IE11
+function(){for(var t=[],e=0;e<arguments.length;e++)t[e]=arguments[e];for(var r,n="",o=t.length,i=0;o>i;){if((r=t[i++])>1114111)throw RangeError(r+" is not a valid code point");n+=r<65536?String.fromCharCode(r):String.fromCharCode(55296+((r-=65536)>>10),r%1024+56320)}return n},Ze=
+// native
+ke?Object.fromEntries:// Ponyfill
+function(t){for(var e={},r=0,n=t;r<n.length;r++){var o=n[r],i=o[0],a=o[1];e[i]=a}return e},Je=$e?// Native
+function(t,e){return t.codePointAt(e)}:// IE 11
+function(t,e){var r=t.length;if(!(e<0||e>=r)){var n,o=t.charCodeAt(e);return o<55296||o>56319||e+1===r||(n=t.charCodeAt(e+1))<56320||n>57343?o:n-56320+(o-55296<<10)+65536}},qe=je?// Native
+function(t){return t.trimStart()}:// Ponyfill
+function(t){return t.replace(Ne,"")},Qe=Ve?// Native
+function(t){return t.trimEnd()}:// Ponyfill
+function(t){return t.replace(Ge,"")};
+// Prevent minifier to translate new RegExp to literal form that might cause syntax error on IE11.
+function tr(t,e){return new RegExp(t,e)}
+// #endregion
+if(Xe){
+// Native
+var er=tr("([^\\p{White_Space}\\p{Pattern_Syntax}]*)","yu");ze=function(t,e){var r;return er.lastIndex=e,null!==(r=er.exec(t)[1])&&void 0!==r?r:""}}else
+// IE11
+ze=function(t,e){for(var r=[];;){var n=Je(t,e);if(void 0===n||ir(n)||ar(n))break;r.push(n),e+=n>=65536?2:1}return Ye.apply(void 0,r)};var rr=/** @class */function(){function t(t,e){void 0===e&&(e={}),this.message=t,this.position={offset:0,line:1,column:1},this.ignoreTag=!!e.ignoreTag,this.locale=e.locale,this.requiresOtherClause=!!e.requiresOtherClause,this.shouldParseSkeletons=!!e.shouldParseSkeletons}return t.prototype.parse=function(){if(0!==this.offset())throw Error("parser can only be used once");return this.parseMessage(0,"",!1)},t.prototype.parseMessage=function(t,e,r){for(var n=[];!this.isEOF();){var o=this.char();if(123/* `{` */===o){if((i=this.parseArgument(t,r)).err)return i;n.push(i.val)}else{if(125/* `}` */===o&&t>0)break;if(35/* `#` */!==o||"plural"!==e&&"selectordinal"!==e){if(60/* `<` */===o&&!this.ignoreTag&&47===this.peek()){if(r)break;return this.error(oe.UNMATCHED_CLOSING_TAG,Ue(this.clonePosition(),this.clonePosition()))}if(60/* `<` */===o&&!this.ignoreTag&&nr(this.peek()||0)){if((i=this.parseTag(t,e)).err)return i;n.push(i.val)}else{var i;if((i=this.parseLiteral(t,e)).err)return i;n.push(i.val)}}else{var a=this.clonePosition();this.bump(),n.push({type:ie.pound,location:Ue(a,this.clonePosition())})}}}return{val:n,err:null}},
+/**
+         * A tag name must start with an ASCII lower/upper case letter. The grammar is based on the
+         * [custom element name][] except that a dash is NOT always mandatory and uppercase letters
+         * are accepted:
+         *
+         * ```
+         * tag ::= "<" tagName (whitespace)* "/>" | "<" tagName (whitespace)* ">" message "</" tagName (whitespace)* ">"
+         * tagName ::= [a-z] (PENChar)*
+         * PENChar ::=
+         *     "-" | "." | [0-9] | "_" | [a-z] | [A-Z] | #xB7 | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x37D] |
+         *     [#x37F-#x1FFF] | [#x200C-#x200D] | [#x203F-#x2040] | [#x2070-#x218F] | [#x2C00-#x2FEF] |
+         *     [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
+         * ```
+         *
+         * [custom element name]: https://html.spec.whatwg.org/multipage/custom-elements.html#valid-custom-element-name
+         * NOTE: We're a bit more lax here since HTML technically does not allow uppercase HTML element but we do
+         * since other tag-based engines like React allow it
+         */
+t.prototype.parseTag=function(t,e){var r=this.clonePosition();this.bump();// `<`
+var n=this.parseTagName();if(this.bumpSpace(),this.bumpIf("/>"))
+// Self closing tag
+return{val:{type:ie.literal,value:"<".concat(n,"/>"),location:Ue(r,this.clonePosition())},err:null};if(this.bumpIf(">")){var o=this.parseMessage(t+1,e,!0);if(o.err)return o;var i=o.val,a=this.clonePosition();
+// Expecting a close tag
+if(this.bumpIf("</")){if(this.isEOF()||!nr(this.char()))return this.error(oe.INVALID_TAG,Ue(a,this.clonePosition()));var s=this.clonePosition();return n!==this.parseTagName()?this.error(oe.UNMATCHED_CLOSING_TAG,Ue(s,this.clonePosition())):(this.bumpSpace(),this.bumpIf(">")?{val:{type:ie.tag,value:n,children:i,location:Ue(r,this.clonePosition())},err:null}:this.error(oe.INVALID_TAG,Ue(a,this.clonePosition())))}return this.error(oe.UNCLOSED_TAG,Ue(r,this.clonePosition()))}return this.error(oe.INVALID_TAG,Ue(r,this.clonePosition()))},
+/**
+         * This method assumes that the caller has peeked ahead for the first tag character.
+         */
+t.prototype.parseTagName=function(){var t=this.offset();// the first tag name character
+for(this.bump();!this.isEOF()&&or(this.char());)this.bump();return this.message.slice(t,this.offset())},t.prototype.parseLiteral=function(t,e){for(var r=this.clonePosition(),n="";;){var o=this.tryParseQuote(e);if(o)n+=o;else{var i=this.tryParseUnquoted(t,e);if(i)n+=i;else{var a=this.tryParseLeftAngleBracket();if(!a)break;n+=a}}}var s=Ue(r,this.clonePosition());return{val:{type:ie.literal,value:n,location:s},err:null}},t.prototype.tryParseLeftAngleBracket=function(){return this.isEOF()||60/* `<` */!==this.char()||!this.ignoreTag&&(nr(t=this.peek()||0)||47===t)?null:(this.bump(),"<");var t;
+/** See `parseTag` function docs. */},
+/**
+         * Starting with ICU 4.8, an ASCII apostrophe only starts quoted text if it immediately precedes
+         * a character that requires quoting (that is, "only where needed"), and works the same in
+         * nested messages as on the top level of the pattern. The new behavior is otherwise compatible.
+         */
+t.prototype.tryParseQuote=function(t){if(this.isEOF()||39/* `'` */!==this.char())return null;
+// Parse escaped char following the apostrophe, or early return if there is no escaped char.
+// Check if is valid escaped character
+switch(this.peek()){case 39/* `'` */:
+// double quote, should return as a single quote.
+return this.bump(),this.bump(),"'";
+// '{', '<', '>', '}'
+case 123:case 60:case 62:case 125:break;case 35:// '#'
+if("plural"===t||"selectordinal"===t)break;return null;default:return null}this.bump();// apostrophe
+var e=[this.char()];// escaped char
+// read chars until the optional closing apostrophe is found
+for(this.bump();!this.isEOF();){var r=this.char();if(39/* `'` */===r){if(39/* `'` */!==this.peek()){
+// Optional closing apostrophe.
+this.bump();break}e.push(39),
+// Bump one more time because we need to skip 2 characters.
+this.bump()}else e.push(r);this.bump()}return Ye.apply(void 0,e)},t.prototype.tryParseUnquoted=function(t,e){if(this.isEOF())return null;var r=this.char();return 60/* `<` */===r||123/* `{` */===r||35/* `#` */===r&&("plural"===e||"selectordinal"===e)||125/* `}` */===r&&t>0?null:(this.bump(),Ye(r))},t.prototype.parseArgument=function(t,e){var r=this.clonePosition();if(this.bump(),// `{`
+this.bumpSpace(),this.isEOF())return this.error(oe.EXPECT_ARGUMENT_CLOSING_BRACE,Ue(r,this.clonePosition()));if(125/* `}` */===this.char())return this.bump(),this.error(oe.EMPTY_ARGUMENT,Ue(r,this.clonePosition()));
+// argument name
+var n=this.parseIdentifierIfPossible().value;if(!n)return this.error(oe.MALFORMED_ARGUMENT,Ue(r,this.clonePosition()));if(this.bumpSpace(),this.isEOF())return this.error(oe.EXPECT_ARGUMENT_CLOSING_BRACE,Ue(r,this.clonePosition()));switch(this.char()){
+// Simple argument: `{name}`
+case 125/* `}` */:// `}`
+return this.bump(),{val:{type:ie.argument,
+// value does not include the opening and closing braces.
+value:n,location:Ue(r,this.clonePosition())},err:null};
+// Argument with options: `{name, format, ...}`
+case 44/* `,` */:return this.bump(),// `,`
+this.bumpSpace(),this.isEOF()?this.error(oe.EXPECT_ARGUMENT_CLOSING_BRACE,Ue(r,this.clonePosition())):this.parseArgumentOptions(t,e,n,r);default:return this.error(oe.MALFORMED_ARGUMENT,Ue(r,this.clonePosition()))}},
+/**
+         * Advance the parser until the end of the identifier, if it is currently on
+         * an identifier character. Return an empty string otherwise.
+         */
+t.prototype.parseIdentifierIfPossible=function(){var t=this.clonePosition(),e=this.offset(),r=ze(this.message,e),n=e+r.length;return this.bumpTo(n),{value:r,location:Ue(t,this.clonePosition())}},t.prototype.parseArgumentOptions=function(t,e,r,n){var o,i=this.clonePosition(),a=this.parseIdentifierIfPossible().value,s=this.clonePosition();
+// Parse this range:
+// {name, type, style}
+//        ^---^
+switch(a){case"":
+// Expecting a style string number, date, time, plural, selectordinal, or select.
+return this.error(oe.EXPECT_ARGUMENT_TYPE,Ue(i,s));case"number":case"date":case"time":
+// Parse this range:
+// {name, number, style}
+//              ^-------^
+this.bumpSpace();var l=null;if(this.bumpIf(",")){this.bumpSpace();var u=this.clonePosition();if((b=this.parseSimpleArgStyleIfPossible()).err)return b;if(0===(p=Qe(b.val)).length)return this.error(oe.EXPECT_ARGUMENT_STYLE,Ue(this.clonePosition(),this.clonePosition()));l={style:p,styleLocation:Ue(u,this.clonePosition())}}if((g=this.tryParseArgumentClose(n)).err)return g;var c=Ue(n,this.clonePosition());
+// Extract style or skeleton
+if(l&&Ke(null==l?void 0:l.style,"::",0)){
+// Skeleton starts with `::`.
+var h=qe(l.style.slice(2));if("number"===a)return(b=this.parseNumberSkeletonFromString(h,l.styleLocation)).err?b:{val:{type:ie.number,value:r,location:c,style:b.val},err:null};if(0===h.length)return this.error(oe.EXPECT_DATE_TIME_SKELETON,c);var f=h;
+// Get "best match" pattern only if locale is passed, if not, let it
+// pass as-is where `parseDateTimeSkeleton()` will throw an error
+// for unsupported patterns.
+this.locale&&(f=function(t,e){for(var r="",n=0;n<t.length;n++){var o=t.charAt(n);if("j"===o){for(var i=0;n+1<t.length&&t.charAt(n+1)===o;)i++,n++;var a=1+(1&i),s=i<2?1:3+(i>>1),l=Me(e);for("H"!=l&&"k"!=l||(s=0);s-- >0;)r+="a";for(;a-- >0;)r=l+r}else r+="J"===o?"H":o}return r}(h,this.locale));var p={type:ae.dateTime,pattern:f,location:l.styleLocation,parsedOptions:this.shouldParseSkeletons?we(f):{}};return{val:{type:"date"===a?ie.date:ie.time,value:r,location:c,style:p},err:null}}
+// Regular style or no style.
+return{val:{type:"number"===a?ie.number:"date"===a?ie.date:ie.time,value:r,location:c,style:null!==(o=null==l?void 0:l.style)&&void 0!==o?o:null},err:null};case"plural":case"selectordinal":case"select":
+// Parse this range:
+// {name, plural, options}
+//              ^---------^
+var d=this.clonePosition();if(this.bumpSpace(),!this.bumpIf(","))return this.error(oe.EXPECT_SELECT_ARGUMENT_OPTIONS,Ue(d,se({},d)));this.bumpSpace();
+// Parse offset:
+// {name, plural, offset:1, options}
+//                ^-----^
+// or the first option:
+// {name, plural, one {...} other {...}}
+//                ^--^
+var m=this.parseIdentifierIfPossible(),y=0;if("select"!==a&&"offset"===m.value){if(!this.bumpIf(":"))return this.error(oe.EXPECT_PLURAL_ARGUMENT_OFFSET_VALUE,Ue(this.clonePosition(),this.clonePosition()));var b;if(this.bumpSpace(),(b=this.tryParseDecimalInteger(oe.EXPECT_PLURAL_ARGUMENT_OFFSET_VALUE,oe.INVALID_PLURAL_ARGUMENT_OFFSET_VALUE)).err)return b;
+// Parse another identifier for option parsing
+this.bumpSpace(),m=this.parseIdentifierIfPossible(),y=b.val}var g,v=this.tryParsePluralOrSelectOptions(t,a,e,m);if(v.err)return v;if((g=this.tryParseArgumentClose(n)).err)return g;var E=Ue(n,this.clonePosition());return"select"===a?{val:{type:ie.select,value:r,options:Ze(v.val),location:E},err:null}:{val:{type:ie.plural,value:r,options:Ze(v.val),offset:y,pluralType:"plural"===a?"cardinal":"ordinal",location:E},err:null};default:return this.error(oe.INVALID_ARGUMENT_TYPE,Ue(i,s))}},t.prototype.tryParseArgumentClose=function(t){
+// Parse: {value, number, ::currency/GBP }
+return this.isEOF()||125/* `}` */!==this.char()?this.error(oe.EXPECT_ARGUMENT_CLOSING_BRACE,Ue(t,this.clonePosition())):(this.bump(),{val:!0,err:null})},
+/**
+         * See: https://github.com/unicode-org/icu/blob/af7ed1f6d2298013dc303628438ec4abe1f16479/icu4c/source/common/messagepattern.cpp#L659
+         */
+t.prototype.parseSimpleArgStyleIfPossible=function(){for(var t=0,e=this.clonePosition();!this.isEOF();){switch(this.char()){case 39/* `'` */:
+// Treat apostrophe as quoting but include it in the style part.
+// Find the end of the quoted literal text.
+this.bump();var r=this.clonePosition();if(!this.bumpUntil("'"))return this.error(oe.UNCLOSED_QUOTE_IN_ARGUMENT_STYLE,Ue(r,this.clonePosition()));this.bump();break;case 123/* `{` */:t+=1,this.bump();break;case 125/* `}` */:if(!(t>0))return{val:this.message.slice(e.offset,this.offset()),err:null};t-=1;break;default:this.bump()}}return{val:this.message.slice(e.offset,this.offset()),err:null}},t.prototype.parseNumberSkeletonFromString=function(t,e){var r=[];try{r=function(t){if(0===t.length)throw new Error("Number skeleton cannot be empty");
+// Parse the skeleton
+for(var e=t.split(Te).filter((function(t){return t.length>0})),r=[],n=0,o=e;n<o.length;n++){var i=o[n].split("/");if(0===i.length)throw new Error("Invalid number skeleton");for(var a=i[0],s=i.slice(1),l=0,u=s;l<u.length;l++)if(0===u[l].length)throw new Error("Invalid number skeleton");r.push({stem:a,options:s})}return r}(t)}catch(t){return this.error(oe.INVALID_NUMBER_SKELETON,e)}return{val:{type:ae.number,tokens:r,location:e,parsedOptions:this.shouldParseSkeletons?Ce(r):{}},err:null}},
+/**
+         * @param nesting_level The current nesting level of messages.
+         *     This can be positive when parsing message fragment in select or plural argument options.
+         * @param parent_arg_type The parent argument's type.
+         * @param parsed_first_identifier If provided, this is the first identifier-like selector of
+         *     the argument. It is a by-product of a previous parsing attempt.
+         * @param expecting_close_tag If true, this message is directly or indirectly nested inside
+         *     between a pair of opening and closing tags. The nested message will not parse beyond
+         *     the closing tag boundary.
+         */
+t.prototype.tryParsePluralOrSelectOptions=function(t,e,r,n){
+// Parse:
+// one {one apple}
+// ^--^
+for(var o,i=!1,a=[],s=new Set,l=n.value,u=n.location;;){if(0===l.length){var c=this.clonePosition();if("select"===e||!this.bumpIf("="))break;
+// Try parse `={number}` selector
+var h=this.tryParseDecimalInteger(oe.EXPECT_PLURAL_ARGUMENT_SELECTOR,oe.INVALID_PLURAL_ARGUMENT_SELECTOR);if(h.err)return h;u=Ue(c,this.clonePosition()),l=this.message.slice(c.offset,this.offset())}
+// Duplicate selector clauses
+if(s.has(l))return this.error("select"===e?oe.DUPLICATE_SELECT_ARGUMENT_SELECTOR:oe.DUPLICATE_PLURAL_ARGUMENT_SELECTOR,u);"other"===l&&(i=!0),
+// Parse:
+// one {one apple}
+//     ^----------^
+this.bumpSpace();var f=this.clonePosition();if(!this.bumpIf("{"))return this.error("select"===e?oe.EXPECT_SELECT_ARGUMENT_SELECTOR_FRAGMENT:oe.EXPECT_PLURAL_ARGUMENT_SELECTOR_FRAGMENT,Ue(this.clonePosition(),this.clonePosition()));var p=this.parseMessage(t+1,e,r);if(p.err)return p;var d=this.tryParseArgumentClose(f);if(d.err)return d;a.push([l,{value:p.val,location:Ue(f,this.clonePosition())}]),
+// Keep track of the existing selectors
+s.add(l),
+// Prep next selector clause.
+this.bumpSpace(),l=(o=this.parseIdentifierIfPossible()).value,u=o.location}return 0===a.length?this.error("select"===e?oe.EXPECT_SELECT_ARGUMENT_SELECTOR:oe.EXPECT_PLURAL_ARGUMENT_SELECTOR,Ue(this.clonePosition(),this.clonePosition())):this.requiresOtherClause&&!i?this.error(oe.MISSING_OTHER_CLAUSE,Ue(this.clonePosition(),this.clonePosition())):{val:a,err:null}},t.prototype.tryParseDecimalInteger=function(t,e){var r=1,n=this.clonePosition();this.bumpIf("+")||this.bumpIf("-")&&(r=-1);for(var o=!1,i=0;!this.isEOF();){var a=this.char();if(!(a>=48/* `0` */&&a<=57/* `9` */))break;o=!0,i=10*i+(a-48),this.bump()}var s=Ue(n,this.clonePosition());return o?We(i*=r)?{val:i,err:null}:this.error(e,s):this.error(t,s)},t.prototype.offset=function(){return this.position.offset},t.prototype.isEOF=function(){return this.offset()===this.message.length},t.prototype.clonePosition=function(){
+// This is much faster than `Object.assign` or spread.
+return{offset:this.position.offset,line:this.position.line,column:this.position.column}},
+/**
+         * Return the code point at the current position of the parser.
+         * Throws if the index is out of bound.
+         */
+t.prototype.char=function(){var t=this.position.offset;if(t>=this.message.length)throw Error("out of bound");var e=Je(this.message,t);if(void 0===e)throw Error("Offset ".concat(t," is at invalid UTF-16 code unit boundary"));return e},t.prototype.error=function(t,e){return{val:null,err:{kind:t,message:this.message,location:e}}},
+/** Bump the parser to the next UTF-16 code unit. */
+t.prototype.bump=function(){if(!this.isEOF()){var t=this.char();10/* '\n' */===t?(this.position.line+=1,this.position.column=1,this.position.offset+=1):(this.position.column+=1,
+// 0 ~ 0x10000 -> unicode BMP, otherwise skip the surrogate pair.
+this.position.offset+=t<65536?1:2)}},
+/**
+         * If the substring starting at the current position of the parser has
+         * the given prefix, then bump the parser to the character immediately
+         * following the prefix and return true. Otherwise, don't bump the parser
+         * and return false.
+         */
+t.prototype.bumpIf=function(t){if(Ke(this.message,t,this.offset())){for(var e=0;e<t.length;e++)this.bump();return!0}return!1},
+/**
+         * Bump the parser until the pattern character is found and return `true`.
+         * Otherwise bump to the end of the file and return `false`.
+         */
+t.prototype.bumpUntil=function(t){var e=this.offset(),r=this.message.indexOf(t,e);return r>=0?(this.bumpTo(r),!0):(this.bumpTo(this.message.length),!1)},
+/**
+         * Bump the parser to the target offset.
+         * If target offset is beyond the end of the input, bump the parser to the end of the input.
+         */
+t.prototype.bumpTo=function(t){if(this.offset()>t)throw Error("targetOffset ".concat(t," must be greater than or equal to the current offset ").concat(this.offset()));for(t=Math.min(t,this.message.length);;){var e=this.offset();if(e===t)break;if(e>t)throw Error("targetOffset ".concat(t," is at invalid UTF-16 code unit boundary"));if(this.bump(),this.isEOF())break}},
+/** advance the parser through all whitespace to the next non-whitespace code unit. */
+t.prototype.bumpSpace=function(){for(;!this.isEOF()&&ir(this.char());)this.bump()},
+/**
+         * Peek at the *next* Unicode codepoint in the input without advancing the parser.
+         * If the input has been exhausted, then this returns null.
+         */
+t.prototype.peek=function(){if(this.isEOF())return null;var t=this.char(),e=this.offset(),r=this.message.charCodeAt(e+(t>=65536?2:1));return null!=r?r:null},t}();
+/**
+     * This check if codepoint is alphabet (lower & uppercase)
+     * @param codepoint
+     * @returns
+     */function nr(t){return t>=97&&t<=122||t>=65&&t<=90}function or(t){return 45/* '-' */===t||46/* '.' */===t||t>=48&&t<=57/* 0..9 */||95/* '_' */===t||t>=97&&t<=122/** a..z */||t>=65&&t<=90/* A..Z */||183==t||t>=192&&t<=214||t>=216&&t<=246||t>=248&&t<=893||t>=895&&t<=8191||t>=8204&&t<=8205||t>=8255&&t<=8256||t>=8304&&t<=8591||t>=11264&&t<=12271||t>=12289&&t<=55295||t>=63744&&t<=64975||t>=65008&&t<=65533||t>=65536&&t<=983039}
+/**
+     * Code point equivalent of regex `\p{White_Space}`.
+     * From: https://www.unicode.org/Public/UCD/latest/ucd/PropList.txt
+     */function ir(t){return t>=9&&t<=13||32===t||133===t||t>=8206&&t<=8207||8232===t||8233===t}
+/**
+     * Code point equivalent of regex `\p{Pattern_Syntax}`.
+     * See https://www.unicode.org/Public/UCD/latest/ucd/PropList.txt
+     */function ar(t){return t>=33&&t<=35||36===t||t>=37&&t<=39||40===t||41===t||42===t||43===t||44===t||45===t||t>=46&&t<=47||t>=58&&t<=59||t>=60&&t<=62||t>=63&&t<=64||91===t||92===t||93===t||94===t||96===t||123===t||124===t||125===t||126===t||161===t||t>=162&&t<=165||166===t||167===t||169===t||171===t||172===t||174===t||176===t||177===t||182===t||187===t||191===t||215===t||247===t||t>=8208&&t<=8213||t>=8214&&t<=8215||8216===t||8217===t||8218===t||t>=8219&&t<=8220||8221===t||8222===t||8223===t||t>=8224&&t<=8231||t>=8240&&t<=8248||8249===t||8250===t||t>=8251&&t<=8254||t>=8257&&t<=8259||8260===t||8261===t||8262===t||t>=8263&&t<=8273||8274===t||8275===t||t>=8277&&t<=8286||t>=8592&&t<=8596||t>=8597&&t<=8601||t>=8602&&t<=8603||t>=8604&&t<=8607||8608===t||t>=8609&&t<=8610||8611===t||t>=8612&&t<=8613||8614===t||t>=8615&&t<=8621||8622===t||t>=8623&&t<=8653||t>=8654&&t<=8655||t>=8656&&t<=8657||8658===t||8659===t||8660===t||t>=8661&&t<=8691||t>=8692&&t<=8959||t>=8960&&t<=8967||8968===t||8969===t||8970===t||8971===t||t>=8972&&t<=8991||t>=8992&&t<=8993||t>=8994&&t<=9e3||9001===t||9002===t||t>=9003&&t<=9083||9084===t||t>=9085&&t<=9114||t>=9115&&t<=9139||t>=9140&&t<=9179||t>=9180&&t<=9185||t>=9186&&t<=9254||t>=9255&&t<=9279||t>=9280&&t<=9290||t>=9291&&t<=9311||t>=9472&&t<=9654||9655===t||t>=9656&&t<=9664||9665===t||t>=9666&&t<=9719||t>=9720&&t<=9727||t>=9728&&t<=9838||9839===t||t>=9840&&t<=10087||10088===t||10089===t||10090===t||10091===t||10092===t||10093===t||10094===t||10095===t||10096===t||10097===t||10098===t||10099===t||10100===t||10101===t||t>=10132&&t<=10175||t>=10176&&t<=10180||10181===t||10182===t||t>=10183&&t<=10213||10214===t||10215===t||10216===t||10217===t||10218===t||10219===t||10220===t||10221===t||10222===t||10223===t||t>=10224&&t<=10239||t>=10240&&t<=10495||t>=10496&&t<=10626||10627===t||10628===t||10629===t||10630===t||10631===t||10632===t||10633===t||10634===t||10635===t||10636===t||10637===t||10638===t||10639===t||10640===t||10641===t||10642===t||10643===t||10644===t||10645===t||10646===t||10647===t||10648===t||t>=10649&&t<=10711||10712===t||10713===t||10714===t||10715===t||t>=10716&&t<=10747||10748===t||10749===t||t>=10750&&t<=11007||t>=11008&&t<=11055||t>=11056&&t<=11076||t>=11077&&t<=11078||t>=11079&&t<=11084||t>=11085&&t<=11123||t>=11124&&t<=11125||t>=11126&&t<=11157||11158===t||t>=11159&&t<=11263||t>=11776&&t<=11777||11778===t||11779===t||11780===t||11781===t||t>=11782&&t<=11784||11785===t||11786===t||11787===t||11788===t||11789===t||t>=11790&&t<=11798||11799===t||t>=11800&&t<=11801||11802===t||11803===t||11804===t||11805===t||t>=11806&&t<=11807||11808===t||11809===t||11810===t||11811===t||11812===t||11813===t||11814===t||11815===t||11816===t||11817===t||t>=11818&&t<=11822||11823===t||t>=11824&&t<=11833||t>=11834&&t<=11835||t>=11836&&t<=11839||11840===t||11841===t||11842===t||t>=11843&&t<=11855||t>=11856&&t<=11857||11858===t||t>=11859&&t<=11903||t>=12289&&t<=12291||12296===t||12297===t||12298===t||12299===t||12300===t||12301===t||12302===t||12303===t||12304===t||12305===t||t>=12306&&t<=12307||12308===t||12309===t||12310===t||12311===t||12312===t||12313===t||12314===t||12315===t||12316===t||12317===t||t>=12318&&t<=12319||12320===t||12336===t||64830===t||64831===t||t>=65093&&t<=65094}function sr(t){t.forEach((function(t){if(delete t.location,de(t)||me(t))for(var e in t.options)delete t.options[e].location,sr(t.options[e].value);else he(t)&&ge(t.style)||(fe(t)||pe(t))&&ve(t.style)?delete t.style.location:be(t)&&sr(t.children)}))}function lr(t,e){void 0===e&&(e={}),e=se({shouldParseSkeletons:!0,requiresOtherClause:!0},e);var r=new rr(t,e).parse();if(r.err){var n=SyntaxError(oe[r.err.kind]);
+// @ts-expect-error Assign to error object
+throw n.location=r.err.location,
+// @ts-expect-error Assign to error object
+n.originalMessage=r.err.message,n}return(null==e?void 0:e.captureLocation)||sr(r.val),r.val}
+
+// Main
+
+function ur(t,e){var r=e&&e.cache?e.cache:br,n=e&&e.serializer?e.serializer:dr;return(e&&e.strategy?e.strategy:pr)(t,{cache:r,serializer:n})}
+
+// Strategy
+
+function cr(t,e,r,n){var o,i=null==(o=n)||"number"==typeof o||"boolean"==typeof o?n:r(n),a=e.get(i);return void 0===a&&(a=t.call(this,n),e.set(i,a)),a}function hr(t,e,r){var n=Array.prototype.slice.call(arguments,3),o=r(n),i=e.get(o);return void 0===i&&(i=t.apply(this,n),e.set(o,i)),i}function fr(t,e,r,n,o){return r.bind(e,t,n,o)}function pr(t,e){return fr(t,this,1===t.length?cr:hr,e.cache.create(),e.serializer)}
+// Serializer
+var dr=function(){return JSON.stringify(arguments)};
+
+// Cache
+
+function mr(){this.cache=Object.create(null)}mr.prototype.get=function(t){return this.cache[t]},mr.prototype.set=function(t,e){this.cache[t]=e};var yr,br={create:function(){
+// @ts-ignore
+return new mr}},gr={variadic:function(t,e){return fr(t,this,hr,e.cache.create(),e.serializer)},monadic:function(t,e){return fr(t,this,cr,e.cache.create(),e.serializer)}};!function(t){
+// When we have a placeholder but no value to format
+t.MISSING_VALUE="MISSING_VALUE",
+// When value supplied is invalid
+t.INVALID_VALUE="INVALID_VALUE",
+// When we need specific Intl API but it's not available
+t.MISSING_INTL_API="MISSING_INTL_API"}(yr||(yr={}));var vr,Er=/** @class */function(t){function e(e,r,n){var o=t.call(this,e)||this;return o.code=r,o.originalMessage=n,o}return ne(e,t),e.prototype.toString=function(){return"[formatjs Error: ".concat(this.code,"] ").concat(this.message)},e}(Error),_r=/** @class */function(t){function e(e,r,n,o){return t.call(this,'Invalid values for "'.concat(e,'": "').concat(r,'". Options are "').concat(Object.keys(n).join('", "'),'"'),yr.INVALID_VALUE,o)||this}return ne(e,t),e}(Er),wr=/** @class */function(t){function e(e,r,n){return t.call(this,'Value for "'.concat(e,'" must be of type ').concat(r),yr.INVALID_VALUE,n)||this}return ne(e,t),e}(Er),Tr=/** @class */function(t){function e(e,r){return t.call(this,'The intl string context variable "'.concat(e,'" was not provided to the string "').concat(r,'"'),yr.MISSING_VALUE,r)||this}return ne(e,t),e}(Er);function Br(t){return"function"==typeof t}
+// TODO(skeleton): add skeleton support
+function Ar(t,e,r,n,o,i,
+// For debugging
+a){
+// Hot path for straight simple msg translations
+if(1===t.length&&ue(t[0]))return[{type:vr.literal,value:t[0].value}];for(var s=[],l=0,u=t;l<u.length;l++){var c=u[l];
+// Exit early for string parts.
+if(ue(c))s.push({type:vr.literal,value:c.value});else
+// TODO: should this part be literal type?
+// Replace `#` in plural rules with the actual numeric value.
+if(ye(c))"number"==typeof i&&s.push({type:vr.literal,value:r.getNumberFormat(e).format(i)});else{var h=c.value;
+// Enforce that all required values are provided by the caller.
+if(!o||!(h in o))throw new Tr(h,a);var f=o[h];if(ce(c))f&&"string"!=typeof f&&"number"!=typeof f||(f="string"==typeof f||"number"==typeof f?String(f):""),s.push({type:"string"==typeof f?vr.literal:vr.object,value:f});else
+// Recursively format plural and select parts' option — which can be a
+// nested pattern structure. The choosing of the option to use is
+// abstracted-by and delegated-to the part helper object.
+if(fe(c)){var p="string"==typeof c.style?n.date[c.style]:ve(c.style)?c.style.parsedOptions:void 0;s.push({type:vr.literal,value:r.getDateTimeFormat(e,p).format(f)})}else if(pe(c)){p="string"==typeof c.style?n.time[c.style]:ve(c.style)?c.style.parsedOptions:n.time.medium;s.push({type:vr.literal,value:r.getDateTimeFormat(e,p).format(f)})}else if(he(c)){(p="string"==typeof c.style?n.number[c.style]:ge(c.style)?c.style.parsedOptions:void 0)&&p.scale&&(f*=p.scale||1),s.push({type:vr.literal,value:r.getNumberFormat(e,p).format(f)})}else{if(be(c)){var d=c.children,m=c.value,y=o[m];if(!Br(y))throw new wr(m,"function",a);var b=y(Ar(d,e,r,n,o,i).map((function(t){return t.value})));Array.isArray(b)||(b=[b]),s.push.apply(s,b.map((function(t){return{type:"string"==typeof t?vr.literal:vr.object,value:t}})))}if(de(c)){if(!(g=c.options[f]||c.options.other))throw new _r(c.value,f,Object.keys(c.options),a);s.push.apply(s,Ar(g.value,e,r,n,o))}else if(me(c)){var g;if(!(g=c.options["=".concat(f)])){if(!Intl.PluralRules)throw new Er('Intl.PluralRules is not available in this environment.\nTry polyfilling it using "@formatjs/intl-pluralrules"\n',yr.MISSING_INTL_API,a);var v=r.getPluralRules(e,{type:c.pluralType}).select(f-(c.offset||0));g=c.options[v]||c.options.other}if(!g)throw new _r(c.value,f,Object.keys(c.options),a);s.push.apply(s,Ar(g.value,e,r,n,o,f-(c.offset||0)))}else;}}}return function(t){return t.length<2?t:t.reduce((function(t,e){var r=t[t.length-1];return r&&r.type===vr.literal&&e.type===vr.literal?r.value+=e.value:t.push(e),t}),[])}(s)}
+/*
+    Copyright (c) 2014, Yahoo! Inc. All rights reserved.
+    Copyrights licensed under the New BSD License.
+    See the accompanying LICENSE file for terms.
+    */
+// -- MessageFormat --------------------------------------------------------
+function Hr(t,e){return e?Object.keys(t).reduce((function(r,n){var o,i;return r[n]=(o=t[n],(i=e[n])?se(se(se({},o||{}),i||{}),Object.keys(o).reduce((function(t,e){return t[e]=se(se({},o[e]),i[e]||{}),t}),{})):o),r}),se({},t)):t}function Sr(t){return{create:function(){return{get:function(e){return t[e]},set:function(e,r){t[e]=r}}}}}!function(t){t[t.literal=0]="literal",t[t.object=1]="object"}(vr||(vr={}));var Pr=/** @class */function(){function t(e,r,n,o){var i,a=this;if(void 0===r&&(r=t.defaultLocale),this.formatterCache={number:{},dateTime:{},pluralRules:{}},this.format=function(t){var e=a.formatToParts(t);
+// Hot path for straight simple msg translations
+if(1===e.length)return e[0].value;var r=e.reduce((function(t,e){return t.length&&e.type===vr.literal&&"string"==typeof t[t.length-1]?t[t.length-1]+=e.value:t.push(e.value),t}),[]);return r.length<=1?r[0]||"":r},this.formatToParts=function(t){return Ar(a.ast,a.locales,a.formatters,a.formats,t,void 0,a.message)},this.resolvedOptions=function(){return{locale:a.resolvedLocale.toString()}},this.getAst=function(){return a.ast},
+// Defined first because it's used to build the format pattern.
+this.locales=r,this.resolvedLocale=t.resolveLocale(r),"string"==typeof e){if(this.message=e,!t.__parse)throw new TypeError("IntlMessageFormat.__parse must be set to process `message` of type `string`");
+// Parse string messages into an AST.
+this.ast=t.__parse(e,{ignoreTag:null==o?void 0:o.ignoreTag,locale:this.resolvedLocale})}else this.ast=e;if(!Array.isArray(this.ast))throw new TypeError("A message must be provided as a String or AST.");
+// Creates a new object with the specified `formats` merged with the default
+// formats.
+this.formats=Hr(t.formats,n),this.formatters=o&&o.formatters||(void 0===(i=this.formatterCache)&&(i={number:{},dateTime:{},pluralRules:{}}),{getNumberFormat:ur((function(){for(var t,e=[],r=0;r<arguments.length;r++)e[r]=arguments[r];return new((t=Intl.NumberFormat).bind.apply(t,le([void 0],e,!1)))}),{cache:Sr(i.number),strategy:gr.variadic}),getDateTimeFormat:ur((function(){for(var t,e=[],r=0;r<arguments.length;r++)e[r]=arguments[r];return new((t=Intl.DateTimeFormat).bind.apply(t,le([void 0],e,!1)))}),{cache:Sr(i.dateTime),strategy:gr.variadic}),getPluralRules:ur((function(){for(var t,e=[],r=0;r<arguments.length;r++)e[r]=arguments[r];return new((t=Intl.PluralRules).bind.apply(t,le([void 0],e,!1)))}),{cache:Sr(i.pluralRules),strategy:gr.variadic})})}return Object.defineProperty(t,"defaultLocale",{get:function(){return t.memoizedDefaultLocale||(t.memoizedDefaultLocale=(new Intl.NumberFormat).resolvedOptions().locale),t.memoizedDefaultLocale},enumerable:!1,configurable:!0}),t.memoizedDefaultLocale=null,t.resolveLocale=function(t){var e=Intl.NumberFormat.supportedLocalesOf(t);return e.length>0?new Intl.Locale(e[0]):new Intl.Locale("string"==typeof t?t:t[0])},t.__parse=lr,
+// Default format options used as the prototype of the `formats` provided to the
+// constructor. These are used when constructing the internal Intl.NumberFormat
+// and Intl.DateTimeFormat instances.
+t.formats={number:{integer:{maximumFractionDigits:0},currency:{style:"currency"},percent:{style:"percent"}},date:{short:{month:"numeric",day:"numeric",year:"2-digit"},medium:{month:"short",day:"numeric",year:"numeric"},long:{month:"long",day:"numeric",year:"numeric"},full:{weekday:"long",month:"long",day:"numeric",year:"numeric"}},time:{short:{hour:"numeric",minute:"numeric"},medium:{hour:"numeric",minute:"numeric",second:"numeric"},long:{hour:"numeric",minute:"numeric",second:"numeric",timeZoneName:"short"},full:{hour:"numeric",minute:"numeric",second:"numeric",timeZoneName:"short"}}},t}(),Rr=Pr;
+/*
+    Copyright (c) 2014, Yahoo! Inc. All rights reserved.
+    Copyrights licensed under the New BSD License.
+    See the accompanying LICENSE file for terms.
+    */const Lr={},Or=(t,e,r)=>r?(e in Lr||(Lr[e]={}),t in Lr[e]||(Lr[e][t]=r),r):r,Cr=(t,e)=>{if(null==e)return;if(e in Lr&&t in Lr[e])return Lr[e][t];const r=Zr(e);for(let n=0;n<r.length;n++){const o=Nr(r[n],t);if(o)return Or(t,e,o)}};let Ir;const xr=Wt({});function Mr(t){return t in Ir}function Nr(t,e){if(!Mr(t))return null;const r=function(t){return Ir[t]||null}(t);return function(t,e){if(null==e)return;if(e in t)return t[e];const r=e.split(".");let n=t;for(let t=0;t<r.length;t++)if("object"==typeof n){if(t>0){const e=r.slice(t,r.length).join(".");if(e in n){n=n[e];break}}n=n[r[t]]}else n=void 0;return n}(r,e)}function Gr(t,...e){delete Lr[t],xr.update((r=>(r[t]=ee.all([r[t]||{},...e]),r)))}Xt([xr],(([t])=>Object.keys(t))),xr.subscribe((t=>Ir=t));const Ur={};function Dr(t){return Ur[t]}function Fr(t){return null!=t&&Zr(t).some((t=>{var e;return null===(e=Dr(t))||void 0===e?void 0:e.size}))}const kr={};function $r(t){if(!Fr(t))return t in kr?kr[t]:Promise.resolve();const e=function(t){return Zr(t).map((t=>{const e=Dr(t);return[t,e?[...e]:[]]})).filter((([,t])=>t.length>0))}(t);return kr[t]=Promise.all(e.map((([t,e])=>function(t,e){const r=Promise.all(e.map((e=>(function(t,e){Ur[t].delete(e),0===Ur[t].size&&delete Ur[t]}(t,e),e().then((t=>t.default||t))))));return r.then((e=>Gr(t,...e)))}(t,e)))).then((()=>{if(Fr(t))return $r(t);delete kr[t]})),kr[t]}
+/*! *****************************************************************************
+    Copyright (c) Microsoft Corporation.
+
+    Permission to use, copy, modify, and/or distribute this software for any
+    purpose with or without fee is hereby granted.
+
+    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+    REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+    AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+    INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+    LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+    OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+    PERFORMANCE OF THIS SOFTWARE.
+    ***************************************************************************** */function jr(t,e){var r={};for(var n in t)Object.prototype.hasOwnProperty.call(t,n)&&e.indexOf(n)<0&&(r[n]=t[n]);if(null!=t&&"function"==typeof Object.getOwnPropertySymbols){var o=0;for(n=Object.getOwnPropertySymbols(t);o<n.length;o++)e.indexOf(n[o])<0&&Object.prototype.propertyIsEnumerable.call(t,n[o])&&(r[n[o]]=t[n[o]])}return r}const Vr={fallbackLocale:null,loadingDelay:200,formats:{number:{scientific:{notation:"scientific"},engineering:{notation:"engineering"},compactLong:{notation:"compact",compactDisplay:"long"},compactShort:{notation:"compact",compactDisplay:"short"}},date:{short:{month:"numeric",day:"numeric",year:"2-digit"},medium:{month:"short",day:"numeric",year:"numeric"},long:{month:"long",day:"numeric",year:"numeric"},full:{weekday:"long",month:"long",day:"numeric",year:"numeric"}},time:{short:{hour:"numeric",minute:"numeric"},medium:{hour:"numeric",minute:"numeric",second:"numeric"},long:{hour:"numeric",minute:"numeric",second:"numeric",timeZoneName:"short"},full:{hour:"numeric",minute:"numeric",second:"numeric",timeZoneName:"short"}}},warnOnMissingMessages:!0,handleMissingMessage:void 0,ignoreTag:!0};function Wr(){return Vr}const Xr=Wt(!1);let zr;const Kr=Wt(null);function Yr(t){return t.split("-").map(((t,e,r)=>r.slice(0,e+1).join("-"))).reverse()}function Zr(t,e=Wr().fallbackLocale){const r=Yr(t);return e?[...new Set([...r,...Yr(e)])]:r}function Jr(){return null!=zr?zr:void 0}Kr.subscribe((t=>{zr=null!=t?t:void 0,"undefined"!=typeof window&&null!=t&&document.documentElement.setAttribute("lang",t)}));const qr=Object.assign(Object.assign({},Kr),{set:t=>{if(t&&function(t){if(null==t)return;const e=Zr(t);for(let t=0;t<e.length;t++){const r=e[t];if(Mr(r))return r}}(t)&&Fr(t)){const{loadingDelay:e}=Wr();let r;return"undefined"!=typeof window&&null!=Jr()&&e?r=window.setTimeout((()=>Xr.set(!0)),e):Xr.set(!0),$r(t).then((()=>{Kr.set(t)})).finally((()=>{clearTimeout(r),Xr.set(!1)}))}return Kr.set(t)}}),Qr=t=>{const e=Object.create(null);return r=>{const n=JSON.stringify(r);return n in e?e[n]:e[n]=t(r)}},tn=(t,e)=>{const{formats:r}=Wr();if(t in r&&e in r[t])return r[t][e];throw new Error(`[svelte-i18n] Unknown "${e}" ${t} format.`)},en=Qr((t=>{var{locale:e,format:r}=t,n=jr(t,["locale","format"]);if(null==e)throw new Error('[svelte-i18n] A "locale" must be set to format numbers');return r&&(n=tn("number",r)),new Intl.NumberFormat(e,n)})),rn=Qr((t=>{var{locale:e,format:r}=t,n=jr(t,["locale","format"]);if(null==e)throw new Error('[svelte-i18n] A "locale" must be set to format dates');return r?n=tn("date",r):0===Object.keys(n).length&&(n=tn("date","short")),new Intl.DateTimeFormat(e,n)})),nn=Qr((t=>{var{locale:e,format:r}=t,n=jr(t,["locale","format"]);if(null==e)throw new Error('[svelte-i18n] A "locale" must be set to format time values');return r?n=tn("time",r):0===Object.keys(n).length&&(n=tn("time","short")),new Intl.DateTimeFormat(e,n)})),on=Qr(((t,e=Jr())=>new Rr(t,e,Wr().formats,{ignoreTag:Wr().ignoreTag}))),an=(t,e={})=>{var r,n,o,i;let a=e;"object"==typeof t&&(a=t,t=a.id);const{values:s,locale:l=Jr(),default:u}=a;if(null==l)throw new Error("[svelte-i18n] Cannot format a message without first setting the initial locale.");let c=Cr(t,l);if(c){if("string"!=typeof c)return console.warn(`[svelte-i18n] Message with id "${t}" must be of type "string", found: "${typeof c}". Gettin its value through the "$format" method is deprecated; use the "json" method instead.`),c}else c=null!==(i=null!==(o=null===(n=(r=Wr()).handleMissingMessage)||void 0===n?void 0:n.call(r,{locale:l,id:t,defaultValue:u}))&&void 0!==o?o:u)&&void 0!==i?i:t;if(!s)return c;let h=c;try{h=on(c,l).format(s)}catch(e){console.warn(`[svelte-i18n] Message "${t}" has syntax error:`,e.message)}return h},sn=(t,e)=>((t={})=>{var{locale:e=Jr()}=t,r=jr(t,["locale"]);return nn(Object.assign({locale:e},r))})(e).format(t),ln=(t,e)=>((t={})=>{var{locale:e=Jr()}=t,r=jr(t,["locale"]);return rn(Object.assign({locale:e},r))})(e).format(t),un=(t,e)=>((t={})=>{var{locale:e=Jr()}=t,r=jr(t,["locale"]);return en(Object.assign({locale:e},r))})(e).format(t),cn=(t,e=Jr())=>Cr(t,e),hn=Xt([qr,xr],(()=>an));Xt([qr],(()=>sn)),Xt([qr],(()=>ln)),Xt([qr],(()=>un)),Xt([qr,xr],(()=>cn)),window.emWidgets={topic:(t,e=0)=>{if(-1==$t.indexOf(t)){let r=new kt(e);jt[t]=r,$t.push(t)}return jt[t]}};function fn(t,e){Gr(t,e)}const pn={en:{randomGame:{playRandomGame:"Play a random game",randomGameLoading:"Selecting ...",playNowRandomGame:"Play Now"}},zh:{randomGame:{playRandomGame:"玩隨機遊戲",randomGameLoading:"選擇...",playNowRandomGame:"現在播放"}},de:{randomGame:{playRandomGame:"Spiel ein Zufallsspiel",randomGameLoading:"Auswahl läuf",playNowRandomGame:"Jetzt spielen"}},fr:{randomGame:{playRandomGame:"Jouer à un jeu aléatoire",randomGameLoading:"Sélectinner ...",playNowRandomGame:"Jouer maintenant"}},ro:{randomGame:{playRandomGame:"Joaca-te un joc aleatoriu",randomGameLoading:"Se selecteaza ...",playNowRandomGame:"Joaca-te Acum"}},tr:{randomGame:{playRandomGame:"Rastgele Bir Oyun Oyna",randomGameLoading:"Oyun Seçiliyor",playNowRandomGame:"Şimdi Oyna"}},es:{randomGame:{playRandomGame:"Juego aleatorio",randomGameLoading:"Seleccionando…",playNowRandomGame:"Juega Ya"}},pt:{randomGame:{playRandomGame:"Jogue um jogo aleatório",randomGameLoading:"Selecionando ...",playNowRandomGame:"Jogue agora"}}};
+/* src/CasinoRandomGame.svelte generated by Svelte v3.48.0 */function dn(t,e,r){const n=t.slice();return n[34]=e[r],n[36]=r,n}
+// (141:4) {#if show}
+function mn(t){let e,r,n,o,i,a,s,l=!/*slotDone*/t[7]&&yn(t),u=/*slotDone*/t[7]&&gn(t);return{c(){e=p("div"),r=p("div"),n=p("span"),n.innerHTML='<slot name="close"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></slot>',o=m(),l&&l.c(),i=m(),u&&u.c(),b(n,"class","ModalCloseBtn"),b(n,"part","ModalCloseBtn"),b(n,"role","button"),b(r,"class","ModalContainer"),b(r,"part","ModalContainer"),b(e,"class","ModalWindow"),b(e,"part","ModalWindow")},m(f,p){h(f,e,p),c(e,r),c(r,n),c(r,o),l&&l.m(r,null),c(r,i),u&&u.m(r,null),a||(s=y(n,"click",/*closeModal*/t[11]),a=!0)},p(t,e){/*slotDone*/t[7]?l&&(l.d(1),l=null):l?l.p(t,e):(l=yn(t),l.c(),l.m(r,i)),/*slotDone*/t[7]?u?u.p(t,e):(u=gn(t),u.c(),u.m(r,null)):u&&(u.d(1),u=null)},d(t){t&&f(e),l&&l.d(),u&&u.d(),a=!1,s()}}}
+// (150:8) {#if !slotDone}
+function yn(t){let e,r,n,o,i,a,s=/*$_*/t[8]("randomGame.randomGameLoading")+"",l=/*gamesToShow*/t[4],u=[];for(let e=0;e<l.length;e+=1)u[e]=bn(dn(t,l,e));return{c(){e=p("div"),r=p("main"),n=p("div");for(let t=0;t<u.length;t+=1)u[t].c();o=m(),i=p("p"),a=d(s),b(n,"class","items"),b(n,"part","items"),v(n,"transform","translateY("+/*offset*/t[6]+"px)"),b(r,"class","RandomGamesSliderWrapper"),b(r,"part","RandomGamesSliderWrapper"),b(i,"class","RandomGameLoading"),b(i,"part","RandomGameLoading"),b(e,"class","RandomGameWrapper"),b(e,"part","RandomGameWrapper")},m(t,s){h(t,e,s),c(e,r),c(r,n);for(let t=0;t<u.length;t+=1)u[t].m(n,null);c(e,o),c(e,i),c(i,a)},p(t,e){if(/*gamesToShow*/16&e[0]){let r;for(l=/*gamesToShow*/t[4],r=0;r<l.length;r+=1){const o=dn(t,l,r);u[r]?u[r].p(o,e):(u[r]=bn(o),u[r].c(),u[r].m(n,null))}for(;r<u.length;r+=1)u[r].d(1);u.length=l.length}/*offset*/64&e[0]&&v(n,"transform","translateY("+/*offset*/t[6]+"px)"),/*$_*/256&e[0]&&s!==(s=/*$_*/t[8]("randomGame.randomGameLoading")+"")&&g(a,s)},d(t){t&&f(e),function(t,e){for(let r=0;r<t.length;r+=1)t[r]&&t[r].d(e)}(u,t)}}}
+// (154:16) {#each gamesToShow as game, i}
+function bn(t){let e,r,n,o,i,a;return{c(){e=p("div"),r=p("img"),a=m(),b(r,"class","RandomGameImage"),b(r,"part","RandomGameImage"),l(r.src,n=/*game*/t[34].thumbnail)||b(r,"src",n),b(r,"alt",o=/*game*/t[34].name),b(r,"title",i=/*game*/t[34].name),b(e,"class","item"),b(e,"part","item")},m(t,n){h(t,e,n),c(e,r),c(e,a)},p(t,e){/*gamesToShow*/16&e[0]&&!l(r.src,n=/*game*/t[34].thumbnail)&&b(r,"src",n),/*gamesToShow*/16&e[0]&&o!==(o=/*game*/t[34].name)&&b(r,"alt",o),/*gamesToShow*/16&e[0]&&i!==(i=/*game*/t[34].name)&&b(r,"title",i)},d(t){t&&f(e)}}}
+// (165:8) {#if slotDone}
+function gn(t){let e,r,o,i,a,s,u,v,E,_,w,T,B,A,H,S,P,R,L,O,C=/*randomGame*/t[3].name+"",I=/*randomGame*/t[3].vendor.name+"",x=/*$_*/t[8]("randomGame.playNowRandomGame")+"";return{c(){e=p("div"),r=p("div"),o=p("img"),u=m(),v=p("button"),v.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 200 200" style="enable-background:new 0 0 200 200;" xml:space="preserve"><style type="text/css">.st0{fill:var(--emfe-w-color-white, #FFFFFF);;}\n                  </style><path class="st0" d="M162.4,161.2C145.3,178.5,122.7,187,100,187c-19.1,0-38.2-6.2-54-18.4l2.2,24c0.4,3.6-2.4,6.9-6,7.3h-0.7  c-3.3,0-6.2-2.7-6.7-6l-3.8-41.1c-0.4-3.6,2.4-6.9,6-7.3l40.9-3.8c3.6-0.4,6.9,2.4,7.3,6c0.4,3.6-2.4,6.9-6,7.3l-26,2.4  c29.3,23.3,72.4,21.6,99.5-5.6c19.8-19.8,26.9-48.7,18.4-75.3c-1.1-3.6,0.9-7.3,4.4-8.4c3.6-1.1,7.3,0.9,8.4,4.4  C194,103.9,185.8,137.9,162.4,161.2L162.4,161.2z M47.1,47.9c27.1-27.1,70.2-29.1,99.5-5.6l-26,2.4c-3.6,0.4-6.4,3.6-6,7.3  c0.2,3.6,3.3,6,6.7,6h0.7l40.9-3.8c3.6-0.4,6.4-3.6,6-7.3l-4-41.1c-0.4-3.6-3.6-6.4-7.3-6c-3.6,0.4-6.4,3.6-6,7.3l2.2,24  C119.3,4.4,69.3,6.8,37.6,38.6C14.2,61.9,6,95.9,15.8,127.2c0.9,2.9,3.6,4.7,6.4,4.7c0.7,0,1.3,0,2-0.2c3.6-1.1,5.6-4.9,4.4-8.4  C20.2,96.6,27.4,67.7,47.1,47.9L47.1,47.9z"></path></svg>',E=m(),_=p("div"),w=p("p"),T=d(C),B=m(),A=p("p"),H=d(I),S=m(),P=p("button"),R=d(x),b(o,"class","RandomGameImage"),b(o,"part","RandomGameImage"),l(o.src,i=/*randomGame*/t[3].thumbnail)||b(o,"src",i),b(o,"alt",a=/*randomGame*/t[3].name),b(o,"title",s=/*randomGame*/t[3].name),b(v,"class","RandomTryAgain"),b(v,"part","RandomTryAgain"),b(r,"class","item"),b(r,"part","item"),b(w,"class","RandomGameTitle"),b(w,"part","RandomGameTitle"),b(A,"class","RandomGameVendor"),b(A,"part","RandomGameVendor"),b(P,"class","RandomGamePlay"),b(P,"part","RandomGamePlay"),b(_,"class","RandomGameDetails"),b(_,"part","RandomGameDetails"),b(e,"class","RandomGameWrapper"),b(e,"part","RandomGameWrapper")},m(n,i){h(n,e,i),c(e,r),c(r,o),c(r,u),c(r,v),c(e,E),c(e,_),c(_,w),c(w,T),c(_,B),c(_,A),c(A,H),c(_,S),c(_,P),c(P,R),L||(O=[y(v,"click",/*click_handler*/t[20]),y(P,"click",/*click_handler_1*/t[21])],L=!0)},p(t,e){/*randomGame*/8&e[0]&&!l(o.src,i=/*randomGame*/t[3].thumbnail)&&b(o,"src",i),/*randomGame*/8&e[0]&&a!==(a=/*randomGame*/t[3].name)&&b(o,"alt",a),/*randomGame*/8&e[0]&&s!==(s=/*randomGame*/t[3].name)&&b(o,"title",s),/*randomGame*/8&e[0]&&C!==(C=/*randomGame*/t[3].name+"")&&g(T,C),/*randomGame*/8&e[0]&&I!==(I=/*randomGame*/t[3].vendor.name+"")&&g(H,I),/*$_*/256&e[0]&&x!==(x=/*$_*/t[8]("randomGame.playNowRandomGame")+"")&&g(R,x)},d(t){t&&f(e),L=!1,n(O)}}}
+// (193:30) 
+function vn(t){let e,r,n=/*$_*/t[8]("randomGame.playRandomGame")+"";return{c(){e=p("span"),r=d(n),b(e,"class","RandomButtonText"),b(e,"part","RandomButtonText")},m(t,n){h(t,e,n),c(e,r)},p(t,e){/*$_*/256&e[0]&&n!==(n=/*$_*/t[8]("randomGame.playRandomGame")+"")&&g(r,n)},d(t){t&&f(e)}}}
+// (191:8) {#if buttontext}
+function En(t){let e,r;return{c(){e=p("span"),r=d(/*buttontext*/t[1]),b(e,"class","RandomButtonText")},m(t,n){h(t,e,n),c(e,r)},p(t,e){/*buttontext*/2&e[0]&&g(r,/*buttontext*/t[1])},d(t){t&&f(e)}}}function _n(e){let r,n,o,i,a,s,l,u,d=/*show*/e[5]&&mn(e);function g(t,e){/*buttontext*/
+return t[1]?En:/*buttontext*/t[1]?void 0:vn}let v=g(e),E=v&&v(e);return{c(){r=p("div"),d&&d.c(),n=m(),o=p("div"),i=p("button"),E&&E.c(),a=m(),s=p("span"),this.c=t,b(s,"class","RandomButtonIcon"),b(s,"part","RandomButtonIcon"),b(i,"class","RandomButton"),b(i,"part","RandomButton"),b(o,"class","RandomButtonWrapper"),b(o,"part","RandomButtonWrapper"),b(r,"part","CustomStylingContainer")},m(t,f){h(t,r,f),d&&d.m(r,null),c(r,n),c(r,o),c(o,i),E&&E.m(i,null),c(i,a),c(i,s),s.innerHTML=/*randombuttonicon*/e[0],
+/*div1_binding*/e[23](r),l||(u=y(i,"click",/*click_handler_2*/e[22]),l=!0)},p(t,e){/*show*/t[5]?d?d.p(t,e):(d=mn(t),d.c(),d.m(r,n)):d&&(d.d(1),d=null),v===(v=g(t))&&E?E.p(t,e):(E&&E.d(1),E=v&&v(t),E&&(E.c(),E.m(i,a))),/*randombuttonicon*/1&e[0]&&(s.innerHTML=/*randombuttonicon*/t[0])},i:t,o:t,d(t){t&&f(r),d&&d.d(),E&&E.d()
+/*div1_binding*/,e[23](null),l=!1,u()}}}function wn(t,e,r){let n;var o,i;o=hn,i=t=>r(8,n=t),t.$$.on_destroy.push(u(o,i));let a,s,{endpoint:l=""}=e,{datasource:c=""}=e,{gameevent:h=""}=e,{lang:f=""}=e,{randombuttonicon:p=""}=e,{buttontext:d=""}=e,{translationurl:m=""}=e,{clientstyling:y=""}=e,{clientstylingurl:b=""}=e,{filteredrandomgamecategories:g=""}=e,v=[],E="",_=!1,w=0,B=0,A=!1,H=window.navigator.userAgent;!function({withLocale:t,translations:e}){qr.subscribe((r=>{null==r&&(xr.set(e),qr.set(t))}));// maybe we will need this to make sure that the i18n is set up only once
+/*dictionary.set(translations);
+      locale.set(_locale);*/}({withLocale:"en",translations:{}});Object.keys(pn).forEach((t=>{fn(t,pn[t])}));const S=()=>{r(4,a=R(a)),r(6,w=0),B=0,r(7,A=!1),r(3,E=v[Math.floor(Math.random()*v.length)]),r(5,_=!0)},P=t=>{if(g)do{S()}while(!g.includes(E.vendor.name));else S();let e=setInterval((()=>{r(6,w-=75),B++,20==B&&(r(7,A=!0),clearInterval(e))}),150);t&&"function"==typeof gtag&&gtag("event","RefreshRandomGame",{context:"RandomGameWidget",gameId:`${E.gId||E.id}`}),window.postMessage({type:"RandomWidgetState",state:!0},window.location.href)},R=t=>{let e,r=t.length;for(;0!=r;)e=Math.floor(Math.random()*r),r--,[t[r],t[e]]=[t[e],t[r]];return t},L=()=>{window.postMessage({type:h,gameId:E.gId||E.id},window.location.href),r(5,_=!1),window.postMessage({type:"RandomWidgetState",state:!1},window.location.href),
+//Analytics event
+"function"==typeof gtag&&gtag("event","OpenGame",{context:"RandomGameWidget",gameId:`${E.gId||E.id}`})},O=()=>{var t;t=f,qr.set(t)};return t.$$set=t=>{"endpoint"in t&&r(12,l=t.endpoint),"datasource"in t&&r(13,c=t.datasource),"gameevent"in t&&r(14,h=t.gameevent),"lang"in t&&r(15,f=t.lang),"randombuttonicon"in t&&r(0,p=t.randombuttonicon),"buttontext"in t&&r(1,d=t.buttontext),"translationurl"in t&&r(16,m=t.translationurl),"clientstyling"in t&&r(17,y=t.clientstyling),"clientstylingurl"in t&&r(18,b=t.clientstylingurl),"filteredrandomgamecategories"in t&&r(19,g=t.filteredrandomgamecategories)},t.$$.update=()=>{/*lang*/32768&t.$$.dirty[0]&&f&&O(),/*translationurl*/65536&t.$$.dirty[0]&&m&&fetch(m).then((t=>t.json())).then((t=>{Object.keys(t).forEach((e=>{fn(e,t[e])}))})).catch((t=>{console.log(t)})),/*endpoint, datasource*/12288&t.$$.dirty[0]&&l&&c&&(()=>{let t=new URL(`${l}/casino/games`);t.searchParams.append("platform",(t=>t.toLowerCase().match(/android/i)?"Android":t.toLowerCase().match(/iphone/i)?"iPhone":t.toLowerCase().match(/ipad|ipod/i)?"iPad":"PC")(H)),t.searchParams.append("datasource",c),t.searchParams.append("fields","gId,id,href,thumbnail,name,vendor"),t.searchParams.append("expand","vendor"),t.searchParams.append("pagination","offset=0,limit=1000"),fetch(t.href).then((t=>t.json())).then((t=>{v=t.items,r(4,a=v.slice(0,19))}))})(),/*clientstyling, customStylingContainer*/131076&t.$$.dirty[0]&&y&&s&&(()=>{let t=document.createElement("style");t.innerHTML=y,s.appendChild(t)})(),/*clientstylingurl, customStylingContainer*/262148&t.$$.dirty[0]&&b&&s&&(()=>{let t=new URL(b),e=document.createElement("style");fetch(t.href).then((t=>t.text())).then((t=>{e.innerHTML=t,setTimeout((()=>{s.appendChild(e)}),1)}))})()},[p,d,s,E,a,_,w,A,n,P,L,()=>{r(5,_=!1),window.postMessage({type:"RandomWidgetState",state:_},window.location.href)},l,c,h,f,m,y,b,g,()=>P(!0),()=>L(),()=>P(),function(t){T[t?"unshift":"push"]((()=>{s=t,r(2,s)}))}]}class Tn extends N{constructor(t){super(),this.shadowRoot.innerHTML='<style>:host{font-family:system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"}*,*::before,*::after{margin:0;padding:0;list-style:none;text-decoration:none;outline:none;box-sizing:border-box}.ModalWindow{display:flex;position:fixed;align-items:center;justify-content:center;width:100%;height:100%;z-index:100;top:0;left:0;background-color:rgba(0, 0, 0, 0.9)}.ModalWindow .ModalContainer{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;width:90vw;min-height:380px;max-width:500px;padding:40px 40px 16px 40px;border-top:3px solid var(--emfe-w-color-secondary, #FD2839);border-radius:5px;position:relative;background:var(--emfe-w-color-white, #FFFFFF)}.ModalWindow .ModalCloseBtn{position:absolute;top:10px;right:10px;border-radius:50%;color:var(--emfe-w-color-secondary, #FD2839);background:rgba(255, 255, 255, 0.1);cursor:pointer;transition:all 150ms ease-in-out;width:28px;height:28px}.ModalWindow .ModalCloseBtn svg{width:28px;height:28px}.ModalWindow .ModalCloseBtn:hover{background:rgba(255, 255, 255, 0.2)}.ModalWindow .ModalMobileContainer .ModalCloseBtn{margin:10px}.ModalWindow .ModalMobileContainer .ModalCloseBtn svg{width:24px;height:24px}.RandomGameWrapper{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}.RandomGamesSliderWrapper{height:170px;overflow:hidden;transition:transform 400ms ease-in-out}.items{gap:5px;transition:transform 0.3s ease-in-out;transform:translateY(0px);-webkit-transform-style:preserve-3d;-webkit-backface-visibility:hidden}.RandomGameLoading{padding:30px 0}.RandomGameImage{width:256px;height:170px;border-radius:5px;-webkit-transform-style:preserve-3d;-webkit-backface-visibility:hidden}.RandomTryAgain{position:absolute;bottom:-10px;right:-10px;background:var(--emfe-w-color-primary, #ffcd36);color:var(--emfe-w-color-white, #FFFFFF);display:flex;align-items:center;padding:6px;border:none;border-radius:50%;cursor:pointer}.RandomTryAgain svg{width:22px;height:22px}.item{position:relative;-webkit-backface-visibility:hidden}.RandomGameDetails{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px}.RandomGameDetails .RandomGameTitle{font-size:16px;line-height:18px;text-align:center}.RandomGameDetails .RandomGameVendor{font-size:10px;margin-bottom:10px}.RandomGameDetails .RandomGamePlay{background:var(--emfe-w-color-primary, #ffcd36);color:var(--emfe-w-color-white, #FFFFFF);border:none;border-radius:5px;width:200px;height:40px;font-size:14px;cursor:pointer}.RandomButtonWrapper{display:flex;justify-content:center;margin-top:30px;width:100%}.RandomButtonWrapper .RandomButton{display:flex;align-items:center;gap:5px;background:var(--emfe-w-color-primary, #ffcd36);color:var(--emfe-w-color-white, #FFFFFF);border:none;border-radius:5px;padding:0 30px;height:50px;font-size:16px;cursor:pointer}</style>',M(this,{target:this.shadowRoot,props:E(this.attributes),customElement:!0},wn,_n,i,{endpoint:12,datasource:13,gameevent:14,lang:15,randombuttonicon:0,buttontext:1,translationurl:16,clientstyling:17,clientstylingurl:18,filteredrandomgamecategories:19},null,[-1,-1]),t&&(t.target&&h(t.target,this,t.anchor),t.props&&(this.$set(t.props),O()))}static get observedAttributes(){return["endpoint","datasource","gameevent","lang","randombuttonicon","buttontext","translationurl","clientstyling","clientstylingurl","filteredrandomgamecategories"]}get endpoint(){return this.$$.ctx[12]}set endpoint(t){this.$$set({endpoint:t}),O()}get datasource(){return this.$$.ctx[13]}set datasource(t){this.$$set({datasource:t}),O()}get gameevent(){return this.$$.ctx[14]}set gameevent(t){this.$$set({gameevent:t}),O()}get lang(){return this.$$.ctx[15]}set lang(t){this.$$set({lang:t}),O()}get randombuttonicon(){return this.$$.ctx[0]}set randombuttonicon(t){this.$$set({randombuttonicon:t}),O()}get buttontext(){return this.$$.ctx[1]}set buttontext(t){this.$$set({buttontext:t}),O()}get translationurl(){return this.$$.ctx[16]}set translationurl(t){this.$$set({translationurl:t}),O()}get clientstyling(){return this.$$.ctx[17]}set clientstyling(t){this.$$set({clientstyling:t}),O()}get clientstylingurl(){return this.$$.ctx[18]}set clientstylingurl(t){this.$$set({clientstylingurl:t}),O()}get filteredrandomgamecategories(){return this.$$.ctx[19]}set filteredrandomgamecategories(t){this.$$set({filteredrandomgamecategories:t}),O()}}return!customElements.get("casino-random-game")&&customElements.define("casino-random-game",Tn),Tn}));
+//# sourceMappingURL=casino-random-game.js.map
