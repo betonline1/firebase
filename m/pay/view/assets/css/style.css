@@ -1,0 +1,25 @@
+body {
+  color: #505963;
+  background: #eee;
+}
+.case {
+  max-width: 710px;
+  width: 100%;
+  margin: 0 auto;
+}
+.text-small {
+  font-size: 12px;
+}
+.payment-card .card-header {
+  position: relative;
+}
+.payment-card .card-header .spinner-border {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+}
+@media (max-width: 798px) {
+  .card .card-header {
+    display: none;
+  }
+}
